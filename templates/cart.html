@@ -1,0 +1,266 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}CraftNest - Shopping Cart{% endblock %}
+
+{% block extra_css %}
+<style>
+    .cart-layout {
+        display: grid;
+        grid-template-columns: 1fr 350px;
+        gap: 2.5rem;
+        margin-top: 2rem;
+    }
+    
+    @media (max-width: 992px) {
+        .cart-layout {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    /* Cart Table / Cards */
+    .cart-table-card {
+        background-color: white;
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-md);
+        box-shadow: var(--shadow-sm);
+        padding: 1.5rem;
+    }
+    
+    .cart-item-row {
+        display: flex;
+        align-items: center;
+        padding: 1.5rem 0;
+        border-bottom: 1px solid var(--border-color);
+    }
+    
+    .cart-item-row:first-child {
+        padding-top: 0;
+    }
+    
+    .cart-item-row:last-child {
+        border-bottom: none;
+        padding-bottom: 0;
+    }
+    
+    .cart-item-img {
+        width: 90px;
+        height: 90px;
+        border-radius: var(--radius-sm);
+        border: 1px solid var(--border-color);
+        object-fit: cover;
+        margin-right: 1.5rem;
+    }
+    
+    .cart-item-details {
+        flex-grow: 1;
+    }
+    
+    .cart-item-name {
+        font-size: 1.15rem;
+        font-weight: 600;
+        margin-bottom: 0.25rem;
+    }
+    
+    .cart-item-meta {
+        font-size: 0.8rem;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        font-weight: 500;
+        margin-bottom: 0.5rem;
+    }
+    
+    .cart-item-price {
+        font-weight: 600;
+        color: var(--primary-color);
+        font-size: 1.05rem;
+    }
+    
+    /* Quantity Control */
+    .cart-qty-control {
+        display: flex;
+        align-items: center;
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-sm);
+        overflow: hidden;
+        width: 100px;
+        height: 34px;
+        margin-right: 2rem;
+    }
+    
+    .cart-qty-btn {
+        background: none;
+        border: none;
+        width: 30px;
+        height: 100%;
+        cursor: pointer;
+        font-weight: bold;
+        font-size: 0.9rem;
+    }
+    .cart-qty-btn:hover {
+        background-color: var(--primary-light);
+        color: var(--primary-color);
+    }
+    .cart-qty-val {
+        flex-grow: 1;
+        text-align: center;
+        font-size: 0.9rem;
+        font-weight: 600;
+    }
+
+    .cart-item-total {
+        font-weight: 700;
+        font-size: 1.2rem;
+        min-width: 90px;
+        text-align: right;
+        margin-right: 1.5rem;
+    }
+    
+    /* Summary Card */
+    .summary-card {
+        background-color: white;
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-md);
+        box-shadow: var(--shadow-sm);
+        padding: 1.75rem;
+        align-self: start;
+    }
+    
+    .summary-title {
+        font-size: 1.35rem;
+        font-weight: 600;
+        margin-bottom: 1.5rem;
+        border-bottom: 1px solid var(--border-color);
+        padding-bottom: 0.75rem;
+    }
+    
+    .summary-row {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 1rem;
+        font-size: 0.95rem;
+        color: var(--text-dark);
+    }
+    
+    .summary-total-row {
+        border-top: 1px solid var(--border-color);
+        margin-top: 1.5rem;
+        padding-top: 1.5rem;
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: var(--text-dark);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <h1 style="font-size: 2.25rem; margin-bottom: 0.25rem; font-family: var(--font-heading);">Shopping Cart</h1>
+    <p style="color: var(--text-muted); border-bottom: 1px solid var(--border-color); padding-bottom: 1rem;">Manage your selected handmade items and checkout</p>
+    
+    {% if cart_items %}
+        <div class="cart-layout">
+            
+            <!-- Cart Items List -->
+            <div class="cart-table-card">
+                {% for item in cart_items %}
+                    <div class="cart-item-row">
+                        <!-- Product Image -->
+                        {% if item.product.image %}
+                            <img src="{{ item.product.image.url }}" alt="{{ item.product.product_name }}" class="cart-item-img">
+                        {% else %}
+                            <div class="cart-item-img" style="background-color: #ddd;"></div>
+                        {% endif %}
+                        
+                        <!-- Product Details -->
+                        <div class="cart-item-details">
+                            <div class="cart-item-meta">{{ item.product.category.category_name }}</div>
+                            <a href="{% url 'product_detail' item.product.id %}" class="cart-item-name">{{ item.product.product_name }}</a>
+                            <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.25rem;">
+                                Material: {{ item.product.material|default:"N/A" }}
+                            </div>
+                            <div class="cart-item-price">₹{{ item.product.price }} each</div>
+                        </div>
+                        
+                        <!-- Quantity Controller -->
+                        <div style="display: flex; align-items: center;">
+                            <div class="cart-qty-control">
+                                <!-- Decrease -->
+                                <form action="{% url 'cart_update' item.id %}" method="post" style="margin: 0;">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="action" value="decrease">
+                                    <button type="submit" class="cart-qty-btn">-</button>
+                                </form>
+                                
+                                <span class="cart-qty-val">{{ item.quantity }}</span>
+                                
+                                <!-- Increase -->
+                                <form action="{% url 'cart_update' item.id %}" method="post" style="margin: 0;">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="action" value="increase">
+                                    <button type="submit" class="cart-qty-btn" {% if item.quantity >= item.product.stock %}disabled style="opacity:0.3; cursor:not-allowed;"{% endif %}>+</button>
+                                </form>
+                            </div>
+                            
+                            <!-- Subtotal item price -->
+                            <div class="cart-item-total">
+                                ₹{% widthratio item.price 1 item.quantity %}
+                            </div>
+                            
+                            <!-- Remove Item -->
+                            <form action="{% url 'cart_remove' item.id %}" method="post" style="margin: 0;">
+                                {% csrf_token %}
+                                <button type="submit" class="nav-action-btn" style="color: #c62828; border: none; background: none; cursor: pointer;" title="Remove Item">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+            
+            <!-- Summary Sidebar -->
+            <div class="summary-card">
+                <h3 class="summary-title">Order Summary</h3>
+                
+                <div class="summary-row">
+                    <span>Subtotal</span>
+                    <span style="font-weight: 600;">₹{{ subtotal|stringformat:".2f" }}</span>
+                </div>
+                <div class="summary-row">
+                    <span>Shipping Fee</span>
+                    <span style="font-weight: 600;">₹{{ shipping|stringformat:".2f" }}</span>
+                </div>
+                <div class="summary-row">
+                    <span>Tax (5% VAT)</span>
+                    <span style="font-weight: 600;">₹{{ tax|stringformat:".2f" }}</span>
+                </div>
+                
+                <div class="summary-row summary-total-row">
+                    <span>Total Amount</span>
+                    <span>₹{{ total|stringformat:".2f" }}</span>
+                </div>
+                
+                <a href="{% url 'checkout' %}" class="btn btn-primary mt-4" style="width: 100%; padding: 0.9rem;">
+                    Proceed to Checkout <i class="bi bi-arrow-right"></i>
+                </a>
+                
+                <div class="text-center mt-3">
+                    <a href="{% url 'shop' %}" style="font-size: 0.9rem; color: var(--primary-color); font-weight: 500;">
+                        <i class="bi bi-bag"></i> Continue Shopping
+                    </a>
+                </div>
+            </div>
+            
+        </div>
+    {% else %}
+        <!-- Empty Cart Display -->
+        <div style="text-align: center; padding: 5rem 0; background-color: white; border: 1px solid var(--border-color); border-radius: var(--radius-md); box-shadow: var(--shadow-sm); max-width: 600px; margin: 3rem auto;">
+            <i class="bi bi-cart-x" style="font-size: 4rem; color: var(--text-muted); display: block; margin-bottom: 1rem;"></i>
+            <h2 style="font-size: 1.75rem; margin-bottom: 0.5rem;">Your Cart is Empty</h2>
+            <p style="color: var(--text-muted); margin-bottom: 2rem;">Looks like you haven't added any handmade goodies yet.</p>
+            <a href="{% url 'shop' %}" class="btn btn-primary">Start Exploring Crafts</a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

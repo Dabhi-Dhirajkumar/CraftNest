@@ -1,0 +1,454 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}CraftNest - Secure Payment{% endblock %}
+
+{% block extra_css %}
+<style>
+    .payment-layout {
+        display: grid;
+        grid-template-columns: 1.2fr 0.8fr;
+        gap: 3rem;
+        margin-top: 2rem;
+        position: relative;
+    }
+    
+    @media (max-width: 992px) {
+        .payment-layout {
+            grid-template-columns: 1fr;
+            gap: 2rem;
+        }
+    }
+
+    .payment-card {
+        background-color: white;
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-md);
+        box-shadow: var(--shadow-sm);
+        padding: 2.25rem;
+    }
+
+    /* Credit Card Preview */
+    .credit-card-preview {
+        background: linear-gradient(135deg, #1c1d1a, #8c7355);
+        color: white;
+        border-radius: var(--radius-md);
+        padding: 1.5rem 2rem;
+        width: 100%;
+        max-width: 380px;
+        height: 220px;
+        margin: 0 auto 2rem auto;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        box-shadow: var(--shadow-md);
+        position: relative;
+        overflow: hidden;
+    }
+    .credit-card-preview::before {
+        content: '';
+        position: absolute;
+        width: 300px;
+        height: 300px;
+        background: rgba(255,255,255,0.03);
+        border-radius: 50%;
+        top: -150px;
+        right: -100px;
+    }
+    .card-chip {
+        width: 45px;
+        height: 35px;
+        background: linear-gradient(135deg, var(--accent-color), #fff3e0);
+        border-radius: 6px;
+    }
+    .card-number-display {
+        font-size: 1.4rem;
+        letter-spacing: 2px;
+        font-family: monospace;
+        margin: 1.5rem 0;
+        text-shadow: 1px 1px 2px rgba(0,0,0,0.6);
+    }
+    .card-meta-row {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        font-family: monospace;
+    }
+
+    /* Form control elements */
+    .method-selector {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+    .method-option {
+        flex: 1;
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-md);
+        padding: 1rem;
+        text-align: center;
+        cursor: pointer;
+        transition: var(--transition);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.5rem;
+        background-color: var(--light-bg);
+    }
+    .method-option input {
+        display: none;
+    }
+    .method-option:hover, .method-option.selected {
+        border-color: var(--primary-color);
+        background-color: var(--primary-light);
+        color: var(--primary-color);
+    }
+
+    .form-group {
+        margin-bottom: 1.25rem;
+    }
+    .form-group label {
+        display: block;
+        font-size: 0.85rem;
+        font-weight: 600;
+        margin-bottom: 0.35rem;
+        color: var(--text-dark);
+    }
+    
+    /* Interactive Loader Overlay */
+    #paymentOverlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(28, 29, 26, 0.85);
+        backdrop-filter: blur(8px);
+        z-index: 2000;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.4s ease;
+    }
+    #paymentOverlay.active {
+        opacity: 1;
+        pointer-events: auto;
+    }
+    .loader-wheel {
+        width: 80px;
+        height: 80px;
+        border: 5px solid rgba(255, 255, 255, 0.15);
+        border-top-color: var(--primary-color);
+        border-radius: 50%;
+        animation: spin 1s infinite linear;
+        margin-bottom: 1.5rem;
+    }
+    
+    /* Success checkmark animation */
+    .success-checkmark {
+        display: none;
+        width: 80px;
+        height: 80px;
+        position: relative;
+        margin-bottom: 1.5rem;
+    }
+    .success-checkmark .check-icon {
+        width: 80px;
+        height: 80px;
+        position: relative;
+        border-radius: 50%;
+        box-sizing: content-box;
+        border: 4px solid #4CAF50;
+    }
+    .success-checkmark .check-icon::after {
+        content: '';
+        position: absolute;
+        top: 40px;
+        left: 20px;
+        width: 15px;
+        height: 30px;
+        border-right: 4px solid #4CAF50;
+        border-bottom: 4px solid #4CAF50;
+        transform: rotate(45deg);
+        transform-origin: 0 100%;
+        animation: checkmark 0.8s ease;
+    }
+    
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    @keyframes checkmark {
+        0% { height: 0; width: 0; opacity: 0; }
+        40% { height: 0; width: 15px; opacity: 1; }
+        100% { height: 30px; width: 15px; opacity: 1; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Page Title -->
+    <div style="border-bottom: 1px solid var(--border-color); padding-bottom: 1rem;">
+        <h1 style="font-size: 2.25rem; margin-bottom: 0.25rem; font-family: var(--font-heading);"><i class="bi bi-shield-lock" style="color: #2e7d32;"></i> Secure Checkout</h1>
+        <p style="color: var(--text-muted);">Transactions are fully encrypted. Please finalize your handmade purchases.</p>
+    </div>
+
+    <!-- Main Payment Section -->
+    <div class="payment-layout">
+        
+        <!-- Left Side: Payment Input Forms -->
+        <div class="payment-card">
+            
+            <form id="paymentForm" method="post" action="{% url 'payment' checkout_id %}">
+                {% csrf_token %}
+                
+                <!-- Payment Method Selectors -->
+                <h3 style="font-size: 1.15rem; margin-bottom: 1rem; font-weight: 600;">Choose Payment Method</h3>
+                <div class="method-selector">
+                    <label class="method-option selected" id="opt_card" onclick="selectMethod('credit_card')">
+                        <input type="radio" name="payment_method" value="credit_card" checked>
+                        <i class="bi bi-credit-card-2-front" style="font-size: 1.5rem;"></i>
+                        <span style="font-size: 0.85rem; font-weight: 600;">Credit/Debit Card</span>
+                    </label>
+                    
+                    <label class="method-option" id="opt_paypal" onclick="selectMethod('paypal')">
+                        <input type="radio" name="payment_method" value="paypal">
+                        <i class="bi bi-paypal" style="font-size: 1.5rem;"></i>
+                        <span style="font-size: 0.85rem; font-weight: 600;">PayPal</span>
+                    </label>
+                    
+                    <label class="method-option" id="opt_other" onclick="selectMethod('other')">
+                        <input type="radio" name="payment_method" value="other">
+                        <i class="bi bi-wallet2" style="font-size: 1.5rem;"></i>
+                        <span style="font-size: 0.85rem; font-weight: 600;">Other Wallet</span>
+                    </label>
+                </div>
+
+                <!-- Credit Card Details Form -->
+                <div id="cardDetailsForm">
+                    <!-- Credit Card Visual Preview -->
+                    <div class="credit-card-preview">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div class="card-chip"></div>
+                            <span style="font-weight: 700; font-style: italic; letter-spacing: 1px; font-size: 0.95rem;">CRAFTNEST</span>
+                        </div>
+                        <div class="card-number-display" id="cardNumberPreview">•••• •••• •••• ••••</div>
+                        <div class="card-meta-row">
+                            <div>
+                                <div style="font-size: 0.65rem; color: #e5dfd3; margin-bottom: 2px;">Card Holder</div>
+                                <div id="cardHolderPreview" style="font-weight: 600;">YOUR NAME</div>
+                            </div>
+                            <div style="text-align: right;">
+                                <div style="font-size: 0.65rem; color: #e5dfd3; margin-bottom: 2px;">Expiry</div>
+                                <div id="cardExpiryPreview" style="font-weight: 600;">MM/YY</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Input Fields -->
+                    <div class="form-group">
+                        <label for="card_holder">Card Holder Name</label>
+                        <input type="text" id="card_holder" class="form-control" placeholder="e.g. Jane Doe" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="card_number">Card Number</label>
+                        <input type="text" id="card_number" class="form-control" maxlength="19" placeholder="4111 2222 3333 4444" required>
+                    </div>
+                    
+                    <div class="grid-2">
+                        <div class="form-group">
+                            <label for="card_expiry">Expiration Date</label>
+                            <input type="text" id="card_expiry" class="form-control" maxlength="5" placeholder="MM/YY" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="card_cvv">CVV Code</label>
+                            <input type="password" id="card_cvv" class="form-control" maxlength="4" placeholder="•••" required>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PayPal Message -->
+                <div id="paypalMessage" style="display: none; padding: 2rem; border: 1px dashed var(--border-color); border-radius: var(--radius-md); text-align: center; background-color: var(--light-bg); margin-bottom: 1.5rem;">
+                    <i class="bi bi-paypal" style="font-size: 2.5rem; color: #003087;"></i>
+                    <h4 style="margin-top: 0.5rem; margin-bottom: 0.25rem;">PayPal Redirect Simulation</h4>
+                    <p style="font-size: 0.85rem; color: var(--text-muted);">You will be directed to logging into your PayPal account securely.</p>
+                </div>
+
+                <!-- Other Wallet Message -->
+                <div id="otherMessage" style="display: none; padding: 2rem; border: 1px dashed var(--border-color); border-radius: var(--radius-md); text-align: center; background-color: var(--light-bg); margin-bottom: 1.5rem;">
+                    <i class="bi bi-wallet2" style="font-size: 2.5rem; color: var(--secondary-color);"></i>
+                    <h4 style="margin-top: 0.5rem; margin-bottom: 0.25rem;">Alternative Payment Options</h4>
+                    <p style="font-size: 0.85rem; color: var(--text-muted);">Simulate wire transfers, gift cards, or localized mobile wallets.</p>
+                </div>
+
+                <button type="submit" class="btn btn-primary mt-3" style="width: 100%; padding: 0.95rem; font-size: 1.05rem;">
+                    Pay & Complete Purchase (₹{{ total|stringformat:".2f" }})
+                </button>
+            </form>
+            
+        </div>
+        
+        <!-- Right Side: Order Summary -->
+        <div class="payment-card" style="align-self: start; background-color: var(--light-bg);">
+            <h3 style="font-size: 1.15rem; margin-bottom: 1.25rem; font-weight: 600; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem;">
+                Payment Summary
+            </h3>
+            
+            <div style="display: flex; flex-direction: column; gap: 0.75rem; font-size: 0.9rem; margin-bottom: 1.5rem;">
+                {% for item in cart_items %}
+                    <div style="display: flex; justify-content: space-between; font-size: 0.85rem;">
+                        <span style="color: var(--text-dark); font-weight: 500;">{{ item.product.product_name }} (&times;{{ item.quantity }})</span>
+                        <span style="font-weight: 600;">₹{% widthratio item.price 1 item.quantity %}</span>
+                    </div>
+                {% endfor %}
+            </div>
+            
+            <div style="border-top: 1px solid var(--border-color); padding-top: 1rem; display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.9rem;">
+                <div style="display: flex; justify-content: space-between;">
+                    <span style="color: var(--text-muted);">Cart Subtotal</span>
+                    <span style="font-weight: 600;">₹{{ subtotal|stringformat:".2f" }}</span>
+                </div>
+                <div style="display: flex; justify-content: space-between;">
+                    <span style="color: var(--text-muted);">Shipping Charge</span>
+                    <span style="font-weight: 600;">₹{{ shipping|stringformat:".2f" }}</span>
+                </div>
+                <div style="display: flex; justify-content: space-between;">
+                    <span style="color: var(--text-muted);">VAT Tax (5%)</span>
+                    <span style="font-weight: 600;">₹{{ tax|stringformat:".2f" }}</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; border-top: 1px solid var(--border-color); padding-top: 1rem; margin-top: 0.5rem; font-size: 1.25rem; font-weight: 700; color: var(--primary-color);">
+                    <span>Amount Due</span>
+                    <span>₹{{ total|stringformat:".2f" }}</span>
+                </div>
+            </div>
+        </div>
+        
+    </div>
+</div>
+
+<!-- Simulated Processing Overlay -->
+<div id="paymentOverlay">
+    <div id="loaderArea" style="text-align: center; display: flex; flex-direction: column; align-items: center;">
+        <div class="loader-wheel"></div>
+        <h2>Processing Secure Payment...</h2>
+        <p style="color: #c9c7c2; font-size: 0.9rem; margin-top: 0.5rem;">Connecting with payment gateway, please do not close or reload this window.</p>
+    </div>
+    
+    <div id="successArea" style="text-align: center; display: none; flex-direction: column; align-items: center;">
+        <div class="success-checkmark">
+            <div class="check-icon"></div>
+        </div>
+        <h2 style="color: #4CAF50;">Payment Approved!</h2>
+        <p style="color: #c9c7c2; font-size: 0.9rem; margin-top: 0.5rem;">Finalizing order details and sending verification...</p>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Selected payment method helper
+    function selectMethod(method) {
+        // Toggle selected styling classes
+        document.querySelectorAll(".method-option").forEach(opt => {
+            opt.classList.remove("selected");
+        });
+        
+        const opt_card = document.getElementById("opt_card");
+        const opt_paypal = document.getElementById("opt_paypal");
+        const opt_other = document.getElementById("opt_other");
+        
+        const cardForm = document.getElementById("cardDetailsForm");
+        const paypalMsg = document.getElementById("paypalMessage");
+        const otherMsg = document.getElementById("otherMessage");
+        
+        // Input fields for Card
+        const inputs = cardForm.querySelectorAll("input");
+
+        if (method === 'credit_card') {
+            opt_card.classList.add("selected");
+            cardForm.style.display = "block";
+            paypalMsg.style.display = "none";
+            otherMsg.style.display = "none";
+            inputs.forEach(inp => inp.setAttribute("required", "true"));
+        } else if (method === 'paypal') {
+            opt_paypal.classList.add("selected");
+            cardForm.style.display = "none";
+            paypalMsg.style.display = "block";
+            otherMsg.style.display = "none";
+            inputs.forEach(inp => inp.removeAttribute("required"));
+        } else {
+            opt_other.classList.add("selected");
+            cardForm.style.display = "none";
+            paypalMsg.style.display = "none";
+            otherMsg.style.display = "block";
+            inputs.forEach(inp => inp.removeAttribute("required"));
+        }
+        
+        // Select check box inside label
+        document.querySelector(`input[value="${method}"]`).checked = true;
+    }
+
+    // Dynamic Credit Card Mirror inputs logic
+    const holderInp = document.getElementById("card_holder");
+    const numInp = document.getElementById("card_number");
+    const expiryInp = document.getElementById("card_expiry");
+    
+    holderInp.addEventListener("input", function() {
+        const val = this.value.toUpperCase();
+        document.getElementById("cardHolderPreview").textContent = val || "YOUR NAME";
+    });
+
+    numInp.addEventListener("input", function() {
+        // Format with space
+        let val = this.value.replace(/\D/g, "");
+        val = val.substring(0, 16);
+        let formatted = "";
+        for (let i = 0; i < val.length; i++) {
+            if (i > 0 && i % 4 === 0) formatted += " ";
+            formatted += val[i];
+        }
+        this.value = formatted;
+        document.getElementById("cardNumberPreview").textContent = formatted || "•••• •••• •••• ••••";
+    });
+
+    expiryInp.addEventListener("input", function() {
+        let val = this.value.replace(/\D/g, "");
+        if (val.length >= 2) {
+            val = val.substring(0,2) + "/" + val.substring(2,4);
+        }
+        this.value = val;
+        document.getElementById("cardExpiryPreview").textContent = val || "MM/YY";
+    });
+
+    // Form submission simulation
+    const paymentForm = document.getElementById("paymentForm");
+    paymentForm.addEventListener("submit", function(e) {
+        e.preventDefault(); // stop submit
+        
+        const overlay = document.getElementById("paymentOverlay");
+        const loader = document.getElementById("loaderArea");
+        const success = document.getElementById("successArea");
+        const checkmark = success.querySelector(".success-checkmark");
+        
+        // Show overlay loader
+        overlay.classList.add("active");
+        
+        // Simulate contact with server (2.5 seconds)
+        setTimeout(() => {
+            loader.style.display = "none";
+            success.style.display = "flex";
+            checkmark.style.display = "block";
+            
+            // Wait another 1.5 seconds, then submit form
+            setTimeout(() => {
+                paymentForm.submit();
+            }, 1800);
+            
+        }, 2200);
+    });
+</script>
+{% endblock %}

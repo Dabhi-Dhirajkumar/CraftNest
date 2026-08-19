@@ -1,0 +1,141 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}CraftNest - My Wishlist{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Wishlist Grid */
+    .wishlist-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 1.5rem;
+        margin-top: 2rem;
+    }
+    
+    /* Product Grid Card Styling */
+    .product-grid-card {
+        background-color: white;
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-md);
+        overflow: hidden;
+        transition: var(--transition);
+        position: relative;
+        display: flex;
+        flex-direction: column;
+    }
+    .product-grid-card:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--shadow-md);
+    }
+    .product-img-wrapper {
+        position: relative;
+        padding-top: 100%;
+        overflow: hidden;
+        background-color: #f5f5f5;
+    }
+    .product-img-wrapper img {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: var(--transition);
+    }
+    .product-info-wrapper {
+        padding: 1.25rem;
+        display: flex;
+        flex-direction: column;
+        flex-grow: 1;
+    }
+    .product-cat {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        color: var(--secondary-color);
+        font-weight: 600;
+        margin-bottom: 0.25rem;
+    }
+    .product-title {
+        font-size: 1.15rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        line-height: 1.3;
+        display: -webkit-box;
+        -webkit-line-clamp: 1;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+    .product-price {
+        font-size: 1.25rem;
+        color: var(--primary-color);
+        font-weight: 700;
+        margin-bottom: 1rem;
+        margin-top: auto;
+    }
+    .product-actions {
+        display: flex;
+        gap: 0.5rem;
+        margin-top: auto;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <h1 style="font-size: 2.25rem; margin-bottom: 0.25rem; font-family: var(--font-heading);">My Wishlist</h1>
+    <p style="color: var(--text-muted); border-bottom: 1px solid var(--border-color); padding-bottom: 1rem;">Products you've saved for later</p>
+    
+    {% if wishlist_items %}
+        <div class="wishlist-grid">
+            {% for item in wishlist_items %}
+                <div class="product-grid-card">
+                    <div class="product-img-wrapper">
+                        {% if item.product.image %}
+                            <img src="{{ item.product.image.url }}" alt="{{ item.product.product_name }}">
+                        {% else %}
+                            <div style="background-color: #ddd; position: absolute; inset: 0;"></div>
+                        {% endif %}
+                        
+                        <!-- Remove from Wishlist Toggle button -->
+                        <form action="{% url 'wishlist_toggle' item.product.id %}" method="post" style="margin: 0;">
+                            {% csrf_token %}
+                            <button type="submit" class="wishlist-btn-overlay" style="color: var(--primary-color);" title="Remove from Wishlist">
+                                <i class="bi bi-heart-fill"></i>
+                            </button>
+                        </form>
+                    </div>
+                    
+                    <div class="product-info-wrapper">
+                        <span class="product-cat">{{ item.product.category.category_name }}</span>
+                        <a href="{% url 'product_detail' item.product.id %}" class="product-title">{{ item.product.product_name }}</a>
+                        <span class="product-price">₹{{ item.product.price }}</span>
+                        
+                        <div class="product-actions">
+                            <a href="{% url 'product_detail' item.product.id %}" class="btn btn-secondary btn-sm" style="flex-grow: 1;">View Details</a>
+                            {% if item.product.stock > 0 %}
+                                <form action="{% url 'cart_add' item.product.id %}" method="post" style="display: inline; margin: 0; flex-grow: 1;">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-primary btn-sm" style="width: 100%;">
+                                        <i class="bi bi-cart-plus"></i> Add to Cart
+                                    </button>
+                                </form>
+                            {% else %}
+                                <button class="btn btn-dark btn-sm" style="flex-grow: 1; cursor: not-allowed; opacity: 0.6;" disabled>Out of Stock</button>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <!-- Empty Wishlist -->
+        <div style="text-align: center; padding: 5rem 0; background-color: white; border: 1px solid var(--border-color); border-radius: var(--radius-md); box-shadow: var(--shadow-sm); max-width: 600px; margin: 3rem auto;">
+            <i class="bi bi-heartbreak" style="font-size: 4rem; color: var(--text-muted); display: block; margin-bottom: 1rem;"></i>
+            <h2 style="font-size: 1.75rem; margin-bottom: 0.5rem;">Your Wishlist is Empty</h2>
+            <p style="color: var(--text-muted); margin-bottom: 2rem;">Save your favorite artisan products here to revisit them later.</p>
+            <a href="{% url 'shop' %}" class="btn btn-primary">Discover Handmade Goods</a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

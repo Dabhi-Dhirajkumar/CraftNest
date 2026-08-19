@@ -1,0 +1,332 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}CraftNest - My Profile{% endblock %}
+
+{% block extra_css %}
+<style>
+    .profile-layout {
+        display: grid;
+        grid-template-columns: 320px 1fr;
+        gap: 3rem;
+        margin-top: 2rem;
+    }
+    
+    @media (max-width: 992px) {
+        .profile-layout {
+            grid-template-columns: 1fr;
+            gap: 2rem;
+        }
+    }
+
+    .profile-sidebar {
+        background-color: white;
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-md);
+        padding: 2rem 1.5rem;
+        text-align: center;
+        box-shadow: var(--shadow-sm);
+        align-self: start;
+    }
+    
+    .profile-sidebar-avatar {
+        width: 130px;
+        height: 130px;
+        border-radius: var(--radius-full);
+        object-fit: cover;
+        margin: 0 auto 1.5rem auto;
+        border: 4px solid var(--primary-light);
+        box-shadow: var(--shadow-sm);
+    }
+    
+    .info-list {
+        text-align: left;
+        margin-top: 2rem;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        border-top: 1px solid var(--border-color);
+        padding-top: 1.5rem;
+    }
+    
+    .info-item {
+        font-size: 0.9rem;
+    }
+    
+    .info-label {
+        font-weight: 600;
+        color: var(--text-muted);
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        margin-bottom: 2px;
+    }
+    .info-value {
+        color: var(--text-dark);
+        font-weight: 500;
+    }
+
+    /* Order History Styling */
+    .order-card {
+        background-color: white;
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-md);
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        box-shadow: var(--shadow-sm);
+    }
+    
+    .order-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid var(--border-color);
+        padding-bottom: 1rem;
+        margin-bottom: 1rem;
+    }
+    
+    @media (max-width: 576px) {
+        .order-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.5rem;
+        }
+    }
+    
+    .order-header-info {
+        font-size: 0.85rem;
+        color: var(--text-muted);
+    }
+    .order-header-info strong {
+        color: var(--text-dark);
+    }
+    
+    .order-body {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    @media (max-width: 576px) {
+        .order-body {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+    }
+
+    .order-prod-img {
+        width: 75px;
+        height: 75px;
+        border-radius: var(--radius-sm);
+        border: 1px solid var(--border-color);
+        object-fit: cover;
+    }
+    
+    /* Order Timeline Tracker CSS */
+    .tracker-container {
+        position: relative;
+        padding: 1.5rem 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 1rem;
+        border-top: 1px dashed var(--border-color);
+        padding-top: 1.5rem;
+    }
+    .tracker-line {
+        position: absolute;
+        height: 4px;
+        background-color: var(--border-color);
+        width: 100%;
+        left: 0;
+        top: calc(1.5rem + 10px);
+        z-index: 1;
+    }
+    .tracker-line-progress {
+        position: absolute;
+        height: 4px;
+        background-color: #2e7d32;
+        left: 0;
+        top: calc(1.5rem + 10px);
+        z-index: 2;
+        transition: width 0.5s ease;
+    }
+    .tracker-node {
+        position: relative;
+        z-index: 3;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 60px;
+    }
+    .tracker-node-circle {
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        background-color: white;
+        border: 4px solid var(--border-color);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: var(--transition);
+    }
+    .tracker-node.active .tracker-node-circle {
+        border-color: #2e7d32;
+        background-color: #2e7d32;
+    }
+    .tracker-node-text {
+        font-size: 0.75rem;
+        font-weight: 600;
+        margin-top: 0.5rem;
+        color: var(--text-muted);
+    }
+    .tracker-node.active .tracker-node-text {
+        color: #2e7d32;
+        font-weight: 700;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="profile-layout">
+        
+        <!-- Left Side: User Profile Information -->
+        <aside class="profile-sidebar">
+            {% if request.user.profile_image %}
+                <img src="{{ request.user.profile_image.url }}" alt="{{ request.user.first_name }}" class="profile-sidebar-avatar">
+            {% else %}
+                <div class="profile-sidebar-avatar" style="background-color: var(--primary-color); color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 3rem;">
+                    {{ request.user.first_name|slice:":1" }}{{ request.user.last_name|slice:":1" }}
+                </div>
+            {% endif %}
+            
+            <h2 style="font-size: 1.5rem; margin-bottom: 0.25rem;">{{ request.user.first_name }} {{ request.user.last_name }}</h2>
+            <p style="color: var(--text-muted); font-size: 0.9rem;">@{{ request.user.username }}</p>
+            <p style="font-size: 0.8rem; color: var(--secondary-color); font-weight: 600; margin-top: 0.25rem;">
+                Joined: {{ request.user.date_joined|date:"M Y" }}
+            </p>
+            
+            <div class="info-list">
+                <div class="info-item">
+                    <div class="info-label">Email Address</div>
+                    <div class="info-value">{{ request.user.email }}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Phone Number</div>
+                    <div class="info-value">{{ profile.phone_no|default:"Not specified" }}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Shipping Location</div>
+                    <div class="info-value">
+                        {% if profile.country %}
+                            {{ profile.city.name }}, {{ profile.state.name }}, {{ profile.country.name }}
+                        {% else %}
+                            Not specified
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Street Address</div>
+                    <div class="info-value" style="font-size: 0.85rem; line-height: 1.5;">{{ profile.address|default:"Not specified" }}</div>
+                </div>
+            </div>
+            
+            <a href="{% url 'profile_edit' %}" class="btn btn-secondary btn-sm mt-4" style="width: 100%;">
+                <i class="bi bi-pencil-square"></i> Edit Profile Details
+            </a>
+        </aside>
+        
+        <!-- Right Side: Order List & Tracking -->
+        <section id="orders">
+            <h2 style="font-size: 1.75rem; font-family: var(--font-heading); margin-bottom: 0.5rem;">Purchase Orders</h2>
+            <p style="color: var(--text-muted); border-bottom: 1px solid var(--border-color); padding-bottom: 1rem; margin-bottom: 2rem;">Track and review your handmade purchases</p>
+            
+            {% for order in orders %}
+                <div class="order-card">
+                    
+                    <!-- Header -->
+                    <div class="order-header">
+                        <div class="order-header-info">
+                            Order <strong>#CN-100{{ order.id }}</strong> &bull; Placed on: <strong>{{ order.order_date|date:"M d, Y" }}</strong>
+                        </div>
+                        <div style="font-weight: 700; color: var(--primary-color); font-size: 1.1rem;">
+                            Total Paid: ₹{{ order.total_price }}
+                        </div>
+                    </div>
+                    
+                    <!-- Body -->
+                    <div class="order-body">
+                        {% if order.product.image %}
+                            <img src="{{ order.product.image.url }}" alt="{{ order.product.product_name }}" class="order-prod-img">
+                        {% else %}
+                            <div class="order-prod-img" style="background-color: #ddd;"></div>
+                        {% endif %}
+                        
+                        <div style="flex-grow: 1;">
+                            <h4 style="font-size: 1.1rem; font-weight: 600; margin: 0;">{{ order.product.product_name }}</h4>
+                            <p style="font-size: 0.85rem; color: var(--text-muted);">
+                                Quantity: {{ order.quantity }} &bull; Material: {{ order.product.material|default:"N/A" }}
+                            </p>
+                            <p style="font-size: 0.85rem; color: var(--text-dark); margin-top: 0.25rem;">
+                                Artisan Creator: <strong>{{ order.product.user.first_name }} {{ order.product.user.last_name }}</strong>
+                            </p>
+                        </div>
+                        
+                        <div>
+                            <a href="{% url 'product_detail' order.product.id %}" class="btn btn-secondary btn-sm" style="padding: 0.4rem 0.8rem; font-size: 0.8rem;">
+                                Write Review
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <!-- Tracking Timeline -->
+                    <div style="font-size: 0.85rem; font-weight: 600; color: var(--text-dark); margin-bottom: 0.5rem;">
+                        Shipment Status: 
+                        <span style="text-transform: uppercase; font-weight: 700; color: {% if order.status == 'delivered' %}#2e7d32{% elif order.status == 'shipped' %}#ef6c00{% else %}#1565c0{% endif %};">
+                            {{ order.status }}
+                        </span>
+                        {% if order.delivery_date %}
+                            &bull; Estimated Delivery: {{ order.delivery_date|date:"M d, Y" }}
+                        {% endif %}
+                    </div>
+                    
+                    <div class="tracker-container">
+                        <!-- Background progress track -->
+                        <div class="tracker-line"></div>
+                        <!-- Completed progress track color -->
+                        <div class="tracker-line-progress" style="width: {% if order.status == 'delivered' %}100%{% elif order.status == 'shipped' %}50%{% else %}0%{% endif %};"></div>
+                        
+                        <!-- Pending Node -->
+                        <div class="tracker-node active">
+                            <div class="tracker-node-circle"><i class="bi bi-clock-history" style="color: white; font-size: 0.65rem;"></i></div>
+                            <span class="tracker-node-text">Pending</span>
+                        </div>
+                        
+                        <!-- Shipped Node -->
+                        <div class="tracker-node {% if order.status == 'shipped' or order.status == 'delivered' %}active{% endif %}">
+                            <div class="tracker-node-circle">{% if order.status == 'shipped' or order.status == 'delivered' %}<i class="bi bi-truck" style="color: white; font-size: 0.65rem;"></i>{% endif %}</div>
+                            <span class="tracker-node-text">Shipped</span>
+                        </div>
+                        
+                        <!-- Delivered Node -->
+                        <div class="tracker-node {% if order.status == 'delivered' %}active{% endif %}">
+                            <div class="tracker-node-circle">{% if order.status == 'delivered' %}<i class="bi bi-check-lg" style="color: white; font-size: 0.65rem;"></i>{% endif %}</div>
+                            <span class="tracker-node-text">Delivered</span>
+                        </div>
+                    </div>
+                    
+                </div>
+            {% empty %}
+                <div style="text-align: center; padding: 4rem 0; background-color: white; border: 1px solid var(--border-color); border-radius: var(--radius-md);">
+                    <i class="bi bi-box" style="font-size: 3rem; color: var(--text-muted); display: block; margin-bottom: 1rem;"></i>
+                    <h3>No Orders Yet</h3>
+                    <p style="color: var(--text-muted);">You haven't made any purchases yet. Your order history will show up here.</p>
+                    <a href="{% url 'shop' %}" class="btn btn-primary btn-sm mt-3">Browse Handmade Products</a>
+                </div>
+            {% endfor %}
+        </section>
+        
+    </div>
+</div>
+{% endblock %}

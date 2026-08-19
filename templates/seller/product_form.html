@@ -1,0 +1,166 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}CraftNest - {% if form.instance.pk %}Edit{% else %}Add{% endif %} Handmade Product{% endblock %}
+
+{% block extra_css %}
+<style>
+    .form-card {
+        background-color: white;
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-md);
+        box-shadow: var(--shadow-sm);
+        padding: 2.5rem;
+        max-width: 700px;
+        margin: 2rem auto;
+    }
+    
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+    
+    .form-group label {
+        display: block;
+        font-size: 0.9rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        color: var(--text-dark);
+    }
+    
+    .form-control {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-md);
+        outline: none;
+        font-size: 0.95rem;
+        transition: var(--transition);
+        background-color: var(--light-bg);
+    }
+    
+    .form-control:focus {
+        border-color: var(--primary-color);
+        background-color: white;
+        box-shadow: 0 0 0 3px var(--primary-light);
+    }
+    
+    textarea.form-control {
+        resize: vertical;
+    }
+
+    .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+    }
+
+    @media (max-width: 576px) {
+        .form-grid {
+            grid-template-columns: 1fr;
+            gap: 0;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    
+    <div style="max-width: 700px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between;">
+        <a href="{% url 'seller_dashboard' %}" style="font-size: 0.9rem; font-weight: 600; color: var(--text-muted); display: inline-flex; align-items: center; gap: 0.5rem;">
+            <i class="bi bi-arrow-left"></i> Back to Dashboard
+        </a>
+    </div>
+    
+    <div class="form-card">
+        <h2 style="font-family: var(--font-heading); font-size: 1.85rem; margin-bottom: 0.5rem; text-align: center;">
+            {% if form.instance.pk %}Edit Handmade Item{% else %}Add Handmade Item{% endif %}
+        </h2>
+        <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 2rem; text-align: center;">
+            {% if form.instance.pk %}Modify your product specifications and availability details below{% else %}Fill out the details to list your handmade item in the CraftNest store{% endif %}
+        </p>
+        
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            
+            <!-- Category -->
+            <div class="form-group">
+                <label for="id_category">Product Category</label>
+                {{ form.category }}
+                {% if form.category.errors %}
+                    <span style="font-size: 0.8rem; color: #c62828;">{{ form.category.errors.0 }}</span>
+                {% endif %}
+            </div>
+            
+            <!-- Product Name -->
+            <div class="form-group">
+                <label for="id_product_name">Product Name</label>
+                {{ form.product_name }}
+                {% if form.product_name.errors %}
+                    <span style="font-size: 0.8rem; color: #c62828;">{{ form.product_name.errors.0 }}</span>
+                {% endif %}
+            </div>
+            
+            <!-- Description -->
+            <div class="form-group">
+                <label for="id_description">Description / Craft Process Details</label>
+                {{ form.description }}
+                {% if form.description.errors %}
+                    <span style="font-size: 0.8rem; color: #c62828;">{{ form.description.errors.0 }}</span>
+                {% endif %}
+            </div>
+            
+            <div class="form-grid">
+                <!-- Price -->
+                <div class="form-group">
+                    <label for="id_price">Price (₹)</label>
+                    {{ form.price }}
+                    {% if form.price.errors %}
+                        <span style="font-size: 0.8rem; color: #c62828;">{{ form.price.errors.0 }}</span>
+                    {% endif %}
+                </div>
+                
+                <!-- Stock -->
+                <div class="form-group">
+                    <label for="id_stock">Initial Stock Quantity</label>
+                    {{ form.stock }}
+                    {% if form.stock.errors %}
+                        <span style="font-size: 0.8rem; color: #c62828;">{{ form.stock.errors.0 }}</span>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="form-grid">
+                <!-- Material -->
+                <div class="form-group">
+                    <label for="id_material">Material Used (Optional)</label>
+                    {{ form.material }}
+                    {% if form.material.errors %}
+                        <span style="font-size: 0.8rem; color: #c62828;">{{ form.material.errors.0 }}</span>
+                    {% endif %}
+                </div>
+                
+                <!-- Image -->
+                <div class="form-group">
+                    <label for="id_image">Product Cover Photo</label>
+                    {{ form.image }}
+                    {% if form.image.errors %}
+                        <span style="font-size: 0.8rem; color: #c62828;">{{ form.image.errors.0 }}</span>
+                    {% endif %}
+                </div>
+            </div>
+            
+            {% if form.non_field_errors %}
+                <div style="background-color: #ffebee; color: #c62828; padding: 0.75rem 1rem; border-radius: var(--radius-sm); margin-bottom: 1.5rem; font-size: 0.9rem;">
+                    {{ form.non_field_errors.0 }}
+                </div>
+            {% endif %}
+            
+            <button type="submit" class="btn btn-primary" style="width: 100%; padding: 0.85rem; font-size: 1rem; margin-top: 1rem;">
+                {% if form.instance.pk %}Update Listing{% else %}Publish Listing{% endif %} <i class="bi bi-send-fill"></i>
+            </button>
+        </form>
+    </div>
+    
+</div>
+{% endblock %}

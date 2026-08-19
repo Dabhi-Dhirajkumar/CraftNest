@@ -1,0 +1,196 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}CraftNest - Contact Support{% endblock %}
+
+{% block extra_css %}
+<style>
+    .contact-layout {
+        display: grid;
+        grid-template-columns: 1.2fr 0.8fr;
+        gap: 3rem;
+        margin-top: 2rem;
+    }
+    
+    @media (max-width: 992px) {
+        .contact-layout {
+            grid-template-columns: 1fr;
+            gap: 2rem;
+        }
+    }
+
+    .contact-card {
+        background-color: white;
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-md);
+        box-shadow: var(--shadow-sm);
+        padding: 2.5rem;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+    .form-group label {
+        display: block;
+        font-size: 0.9rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        color: var(--text-dark);
+    }
+    .form-control {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-md);
+        outline: none;
+        font-size: 0.95rem;
+        transition: var(--transition);
+        background-color: var(--light-bg);
+    }
+    .form-control:focus {
+        border-color: var(--primary-color);
+        background-color: white;
+        box-shadow: 0 0 0 3px var(--primary-light);
+    }
+
+    .support-card {
+        background-color: var(--dark-bg);
+        color: #c9c7c2;
+        border-radius: var(--radius-md);
+        padding: 2.5rem;
+        box-shadow: var(--shadow-sm);
+        align-self: start;
+    }
+    .support-card h3 {
+        color: white;
+        font-size: 1.4rem;
+        margin-bottom: 1.5rem;
+        border-bottom: 1px solid #333;
+        padding-bottom: 0.5rem;
+    }
+    
+    .contact-info-list {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+    .contact-info-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+    .contact-info-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background-color: rgba(211, 117, 86, 0.15);
+        color: var(--primary-color);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+        flex-shrink: 0;
+    }
+    .contact-info-detail h4 {
+        color: white;
+        font-size: 1rem;
+        margin-bottom: 2px;
+    }
+    .contact-info-detail p {
+        font-size: 0.9rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Page Header -->
+    <div style="border-bottom: 1px solid var(--border-color); padding-bottom: 1rem;">
+        <h1 style="font-size: 2.25rem; margin-bottom: 0.25rem; font-family: var(--font-heading);">Contact Support</h1>
+        <p style="color: var(--text-muted);">Have questions or feedback? Let us know, and we'll reply shortly.</p>
+    </div>
+
+    <div class="contact-layout">
+        
+        <!-- Left Side: Support Feedback Form -->
+        <div class="contact-card">
+            <h2 style="font-size: 1.4rem; margin-bottom: 1.5rem; font-family: var(--font-heading);">Send a Message</h2>
+            
+            <form method="post" action="{% url 'contact' %}">
+                {% csrf_token %}
+                
+                <div class="grid-2" style="gap: 1.5rem;">
+                    <div class="form-group">
+                        <label for="id_name">Your Name</label>
+                        <input type="text" name="name" id="id_name" class="form-control" placeholder="e.g. Jane Doe" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="id_email">Email Address</label>
+                        <input type="email" name="email" id="id_email" class="form-control" placeholder="e.g. jane@example.com" required>
+                    </div>
+                </div>
+                
+                <div class="grid-2" style="gap: 1.5rem;">
+                    <div class="form-group">
+                        <label for="id_subject">Subject</label>
+                        <input type="text" name="subject" id="id_subject" class="form-control" placeholder="How can we help you?" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="id_phone">Phone Number (Optional)</label>
+                        <input type="text" name="phone" id="id_phone" class="form-control" placeholder="e.g. +1 555-0199">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="id_message">Message Details</label>
+                    <textarea name="message" id="id_message" class="form-control" rows="5" placeholder="Write your inquiry here..." required></textarea>
+                </div>
+                
+                <button type="submit" class="btn btn-primary" style="width: 100%; padding: 0.9rem;">
+                    Submit Inquiry Message <i class="bi bi-send-fill"></i>
+                </button>
+            </form>
+        </div>
+        
+        <!-- Right Side: Support Details Card -->
+        <div class="support-card">
+            <h3>Support Center</h3>
+            
+            <div class="contact-info-list">
+                <div class="contact-info-item">
+                    <div class="contact-info-icon"><i class="bi bi-geo-alt"></i></div>
+                    <div class="contact-info-detail">
+                        <h4>Headquarters</h4>
+                        <p>101 Artisan Boulevard,<br>San Francisco, CA 94103</p>
+                    </div>
+                </div>
+                
+                <div class="contact-info-item">
+                    <div class="contact-info-icon"><i class="bi bi-telephone"></i></div>
+                    <div class="contact-info-detail">
+                        <h4>Customer Line</h4>
+                        <p>+1 555-0199<br><span style="font-size: 0.8rem; color: var(--text-muted);">Mon-Fri, 9am - 6pm PST</span></p>
+                    </div>
+                </div>
+                
+                <div class="contact-info-item">
+                    <div class="contact-info-icon"><i class="bi bi-envelope"></i></div>
+                    <div class="contact-info-detail">
+                        <h4>Support Email</h4>
+                        <p>support@craftnest.com<br><span style="font-size: 0.8rem; color: var(--text-muted);">We reply within 24 hours</span></p>
+                    </div>
+                </div>
+                
+                <div class="contact-info-item">
+                    <div class="contact-info-icon"><i class="bi bi-info-circle"></i></div>
+                    <div class="contact-info-detail">
+                        <h4>Helpdesk Portal</h4>
+                        <p>Check out our <a href="#" style="color: var(--primary-color); text-decoration: underline;">FAQ Guide</a> for immediate answers on shipping and return policies.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,138 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}CraftNest - Create Account{% endblock %}
+
+{% block extra_css %}
+<style>
+    .auth-card {
+        background-color: white;
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-md);
+        box-shadow: var(--shadow-sm);
+        padding: 2.5rem;
+        max-width: 550px;
+        margin: 3rem auto;
+    }
+    
+    .form-group {
+        margin-bottom: 1.25rem;
+    }
+    .form-group label {
+        display: block;
+        font-size: 0.9rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        color: var(--text-dark);
+    }
+    .form-control {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-md);
+        outline: none;
+        font-size: 0.95rem;
+        transition: var(--transition);
+        background-color: var(--light-bg);
+    }
+    .form-control:focus {
+        border-color: var(--primary-color);
+        background-color: white;
+        box-shadow: 0 0 0 3px var(--primary-light);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="auth-card">
+        <div style="text-align: center; margin-bottom: 2rem;">
+            <i class="bi bi-nest-fill" style="font-size: 3rem; color: var(--primary-color);"></i>
+            <h1 style="font-family: var(--font-heading); font-size: 2rem; margin-top: 0.5rem; margin-bottom: 0.25rem;">Create Account</h1>
+            <p style="color: var(--text-muted); font-size: 0.9rem;">Join the CraftNest handmade goods marketplace community</p>
+        </div>
+        
+        <form method="post" enctype="multipart/form-data" action="{% url 'register' %}">
+            {% csrf_token %}
+
+            <div class="grid-2" style="gap: 1rem;">
+                <!-- Username -->
+                <div class="form-group">
+                    <label for="id_username">Username</label>
+                    <input type="text" name="username" id="id_username" class="form-control" placeholder="Choose a username" value="{{ form.username.value|default:'' }}" required>
+                    {% if form.username.errors %}
+                        <span style="font-size: 0.8rem; color: #c62828;">{{ form.username.errors.0 }}</span>
+                    {% endif %}
+                </div>
+                
+                <!-- Email -->
+                <div class="form-group">
+                    <label for="id_email">Email Address</label>
+                    <input type="email" name="email" id="id_email" class="form-control" placeholder="e.g. buyer@example.com" value="{{ form.email.value|default:'' }}" required>
+                    {% if form.email.errors %}
+                        <span style="font-size: 0.8rem; color: #c62828;">{{ form.email.errors.0 }}</span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="grid-2" style="gap: 1rem;">
+                <!-- First Name -->
+                <div class="form-group">
+                    <label for="id_first_name">First Name</label>
+                    <input type="text" name="first_name" id="id_first_name" class="form-control" placeholder="First Name" value="{{ form.first_name.value|default:'' }}" required>
+                </div>
+                
+                <!-- Last Name -->
+                <div class="form-group">
+                    <label for="id_last_name">Last Name</label>
+                    <input type="text" name="last_name" id="id_last_name" class="form-control" placeholder="Last Name" value="{{ form.last_name.value|default:'' }}" required>
+                </div>
+            </div>
+
+            <div class="grid-2" style="gap: 1rem;">
+                <!-- Password -->
+                <div class="form-group">
+                    <label for="id_password">Password</label>
+                    <input type="password" name="password" id="id_password" class="form-control" placeholder="Min. 8 characters" required>
+                    {% if form.password.errors %}
+                        <span style="font-size: 0.8rem; color: #c62828;">{{ form.password.errors.0 }}</span>
+                    {% endif %}
+                </div>
+                
+                <!-- Confirm Password -->
+                <div class="form-group">
+                    <label for="id_confirm_password">Confirm Password</label>
+                    <input type="password" name="confirm_password" id="id_confirm_password" class="form-control" placeholder="Re-type password" required>
+                    {% if form.non_field_errors %}
+                        <span style="font-size: 0.8rem; color: #c62828;">{{ form.non_field_errors.0 }}</span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Profile Image (Optional) -->
+            <div class="form-group">
+                <label for="id_profile_image">Profile Photo / Avatar (Optional)</label>
+                <input type="file" name="profile_image" id="id_profile_image" class="form-control" accept="image/*">
+            </div>
+
+            <!-- Account Type Dropdown -->
+            <div class="form-group">
+                <label for="id_role">Account Type</label>
+                <select name="role" id="id_role" class="form-control" required>
+                    <option value="user" selected>User</option>
+                    <option value="seller">Seller</option>
+                </select>
+            </div>
+
+            <button type="submit" class="btn btn-primary" style="width: 100%; padding: 0.85rem; font-size: 1rem; margin-top: 1rem;">
+                Register Account <i class="bi bi-person-plus-fill"></i>
+            </button>
+        </form>
+        
+        <div style="text-align: center; margin-top: 2rem; border-top: 1px solid var(--border-color); padding-top: 1.5rem; font-size: 0.9rem; color: var(--text-muted);">
+            Already have a CraftNest account? 
+            <a href="{% url 'login' %}" style="color: var(--primary-color); font-weight: 600; text-decoration: underline;">Log in instead</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

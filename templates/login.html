@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}CraftNest - Log In{% endblock %}
+
+{% block extra_css %}
+<style>
+    .auth-card {
+        background-color: white;
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-md);
+        box-shadow: var(--shadow-sm);
+        padding: 2.5rem;
+        max-width: 450px;
+        margin: 4rem auto;
+    }
+    
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+    .form-group label {
+        display: block;
+        font-size: 0.9rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        color: var(--text-dark);
+    }
+    .form-control {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-md);
+        outline: none;
+        font-size: 0.95rem;
+        transition: var(--transition);
+        background-color: var(--light-bg);
+    }
+    .form-control:focus {
+        border-color: var(--primary-color);
+        background-color: white;
+        box-shadow: 0 0 0 3px var(--primary-light);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="auth-card">
+        <div style="text-align: center; margin-bottom: 2rem;">
+            <i class="bi bi-nest-fill" style="font-size: 3rem; color: var(--primary-color);"></i>
+            <h1 style="font-family: var(--font-heading); font-size: 2rem; margin-top: 0.5rem; margin-bottom: 0.25rem;">Welcome Back</h1>
+            <p style="color: var(--text-muted); font-size: 0.9rem;">Sign in to your CraftNest customer account</p>
+        </div>
+        
+        <form method="post" action="{% url 'login' %}">
+            {% csrf_token %}
+            
+            {% if request.GET.next %}
+                <input type="hidden" name="next" value="{{ request.GET.next }}">
+            {% endif %}
+
+            <!-- Username or Email -->
+            <div class="form-group">
+                <label for="username">Username or Email Address</label>
+                <input type="text" name="username" id="username" class="form-control" placeholder="e.g. buyer or buyer@craftnest.com" value="{{ username|default:'' }}" required autofocus>
+            </div>
+            
+            <!-- Password -->
+            <div class="form-group">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                    <label for="password" style="margin: 0;">Password</label>
+                    <a href="{% url 'forgot_password' %}" style="font-size: 0.8rem; color: var(--primary-color); font-weight: 500;">Forgot password?</a>
+                </div>
+                <input type="password" name="password" id="password" class="form-control" placeholder="Enter your password" required>
+            </div>
+            
+            <button type="submit" class="btn btn-primary" style="width: 100%; padding: 0.85rem; font-size: 1rem; margin-top: 1rem;">
+                Sign In Securely <i class="bi bi-shield-lock-fill"></i>
+            </button>
+        </form>
+        
+        <div style="text-align: center; margin-top: 2rem; border-top: 1px solid var(--border-color); padding-top: 1.5rem; font-size: 0.9rem; color: var(--text-muted);">
+            New to CraftNest? 
+            <a href="{% url 'register' %}" style="color: var(--primary-color); font-weight: 600; text-decoration: underline;">Create account</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

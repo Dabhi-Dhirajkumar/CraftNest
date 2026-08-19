@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}CraftNest - Delete Product{% endblock %}
+
+{% block extra_css %}
+<style>
+    .delete-card {
+        background-color: white;
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-md);
+        box-shadow: var(--shadow-sm);
+        padding: 2.5rem;
+        max-width: 500px;
+        margin: 4rem auto;
+        text-align: center;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    
+    <div class="delete-card">
+        <i class="bi bi-exclamation-triangle-fill" style="font-size: 3.5rem; color: #c62828; display: block; margin-bottom: 1.5rem;"></i>
+        
+        <h2 style="font-family: var(--font-heading); font-size: 1.75rem; margin-bottom: 1rem; color: var(--text-dark);">
+            Delete Listing?
+        </h2>
+        
+        <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 2rem; line-height: 1.6;">
+            Are you sure you want to delete <strong>{{ object.product_name }}</strong>? This action cannot be undone, and the product will be permanently removed from your inventory and store listings.
+        </p>
+        
+        <form method="post">
+            {% csrf_token %}
+            <div style="display: flex; gap: 1rem; justify-content: center;">
+                <a href="{% url 'seller_dashboard' %}" class="btn btn-secondary" style="flex: 1;">
+                    Cancel
+                </a>
+                <button type="submit" class="btn" style="background-color: #c62828; color: white; flex: 1;">
+                    Yes, Delete <i class="bi bi-trash"></i>
+                </button>
+            </div>
+        </form>
+    </div>
+    
+</div>
+{% endblock %}

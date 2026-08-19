@@ -1,0 +1,437 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}CraftNest - Discover Handmade Products{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Hero Section Styles */
+    .hero {
+        background: linear-gradient(135deg, rgba(43, 44, 40, 0.95), rgba(140, 115, 85, 0.8)), url('https://images.unsplash.com/photo-1513519245088-0e12902e5a38?q=80&w=1920&auto=format&fit=crop');
+        background-size: cover;
+        background-position: center;
+        color: white;
+        padding: 8rem 0;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+        border-bottom-left-radius: var(--radius-lg);
+        border-bottom-right-radius: var(--radius-lg);
+    }
+    
+    .hero-content {
+        max-width: 800px;
+        margin: 0 auto;
+        animation: fadeInUp 0.8s ease;
+    }
+    
+    .hero h1 {
+        font-size: 4rem;
+        font-family: var(--font-heading);
+        color: white;
+        margin-bottom: 1.5rem;
+        line-height: 1.15;
+    }
+    
+    .hero p {
+        font-size: 1.25rem;
+        color: #f0ece3;
+        margin-bottom: 2.5rem;
+        font-weight: 300;
+    }
+
+    .hero-btns {
+        display: flex;
+        justify-content: center;
+        gap: 1.5rem;
+    }
+
+    /* Categories grid styling */
+    .section-title {
+        text-align: center;
+        margin-bottom: 3.5rem;
+    }
+    .section-title h2 {
+        font-size: 2.5rem;
+        margin-bottom: 0.5rem;
+        position: relative;
+        display: inline-block;
+    }
+    .section-title h2::after {
+        content: '';
+        display: block;
+        width: 60px;
+        height: 3px;
+        background-color: var(--primary-color);
+        margin: 0.5rem auto 0 auto;
+    }
+    .section-title p {
+        color: var(--text-muted);
+        font-size: 1.1rem;
+    }
+
+    .category-card {
+        position: relative;
+        height: 250px;
+        border-radius: var(--radius-md);
+        overflow: hidden;
+        box-shadow: var(--shadow-sm);
+        transition: var(--transition);
+        display: flex;
+        align-items: flex-end;
+        padding: 2rem;
+    }
+    .category-card::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.2) 60%, rgba(0,0,0,0) 100%);
+        z-index: 1;
+    }
+    .category-card img {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: var(--transition);
+    }
+    .category-card:hover img {
+        transform: scale(1.08);
+    }
+    .category-content {
+        position: relative;
+        z-index: 2;
+        color: white;
+    }
+    .category-content h3 {
+        color: white;
+        font-size: 1.5rem;
+        margin-bottom: 0.25rem;
+    }
+    .category-content p {
+        font-size: 0.85rem;
+        color: #e5dfd3;
+        opacity: 0;
+        transform: translateY(10px);
+        transition: var(--transition);
+    }
+    .category-card:hover .category-content p {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    /* Product Grid Card Styling */
+    .product-grid-card {
+        background-color: white;
+        border-radius: var(--radius-md);
+        border: 1px solid var(--border-color);
+        overflow: hidden;
+        transition: var(--transition);
+        position: relative;
+        display: flex;
+        flex-direction: column;
+    }
+    .product-grid-card:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--shadow-md);
+    }
+    .product-img-wrapper {
+        position: relative;
+        padding-top: 100%; /* 1:1 Aspect Ratio */
+        overflow: hidden;
+        background-color: #f5f5f5;
+    }
+    .product-img-wrapper img {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: var(--transition);
+    }
+    .product-grid-card:hover .product-img-wrapper img {
+        transform: scale(1.05);
+    }
+    .wishlist-btn-overlay {
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        background-color: white;
+        border: none;
+        border-radius: var(--radius-full);
+        width: 36px;
+        height: 36px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        box-shadow: var(--shadow-sm);
+        transition: var(--transition);
+        z-index: 5;
+    }
+    .wishlist-btn-overlay:hover {
+        background-color: var(--primary-light);
+        color: var(--primary-color);
+    }
+    .product-info-wrapper {
+        padding: 1.25rem;
+        display: flex;
+        flex-direction: column;
+        flex-grow: 1;
+    }
+    .product-cat {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        color: var(--secondary-color);
+        font-weight: 600;
+        margin-bottom: 0.25rem;
+    }
+    .product-title {
+        font-size: 1.15rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        line-height: 1.3;
+        display: -webkit-box;
+        -webkit-line-clamp: 1;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+    .product-price {
+        font-size: 1.25rem;
+        color: var(--primary-color);
+        font-weight: 700;
+        margin-bottom: 1rem;
+        margin-top: auto;
+    }
+    .product-actions {
+        display: flex;
+        gap: 0.5rem;
+        margin-top: auto;
+    }
+
+    /* Testimonials styling */
+    .testimonial-section {
+        background-color: var(--primary-light);
+        border-radius: var(--radius-lg);
+        padding: 5rem 2rem;
+    }
+    .testimonial-card {
+        background-color: white;
+        border-radius: var(--radius-md);
+        padding: 2rem;
+        box-shadow: var(--shadow-sm);
+        border: 1px solid var(--border-color);
+        position: relative;
+    }
+    .testimonial-quote {
+        font-size: 1rem;
+        font-style: italic;
+        color: var(--text-dark);
+        margin-bottom: 1.5rem;
+    }
+    .testimonial-user {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+    .testimonial-user img {
+        width: 45px;
+        height: 45px;
+        border-radius: var(--radius-full);
+        object-fit: cover;
+    }
+
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(30px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 768px) {
+        .hero h1 { font-size: 2.75rem; }
+        .hero { padding: 5rem 0; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero Banner -->
+<section class="hero">
+    <div class="container hero-content">
+        <h1>Handmade Goods, Crafted With Soul</h1>
+        <p>Explore our curated collections of ceramics, organic home textiles, solid wood carvings, and jewelry crafted by master artisans worldwide.</p>
+        <div class="hero-btns">
+            <a href="{% url 'shop' %}" class="btn btn-primary"><i class="bi bi-bag"></i> Browse Marketplace</a>
+            <a href="{% url 'contact' %}" class="btn btn-secondary" style="background: rgba(255,255,255,0.15); color: white; border-color: white;">Get in Touch</a>
+        </div>
+    </div>
+</section>
+
+<!-- Categories Section -->
+<section class="py-6" id="categories">
+    <div class="container">
+        <div class="section-title">
+            <h2>Explore Categories</h2>
+            <p>Find beautiful handmade items organized by craft form</p>
+        </div>
+        <div class="grid-4">
+            {% for category in categories %}
+                <a href="{% url 'shop' %}?category={{ category.id }}" class="category-card">
+                    {% if category.image %}
+                        <img src="{{ category.image.url }}" alt="{{ category.category_name }}">
+                    {% else %}
+                        <div style="background-color: var(--secondary-color); position: absolute; inset: 0;"></div>
+                    {% endif %}
+                    <div class="category-content">
+                        <h3>{{ category.category_name }}</h3>
+                        <p>{{ category.description }}</p>
+                    </div>
+                </a>
+            {% empty %}
+                <p class="text-center" style="grid-column: span 4;">No categories seeded yet.</p>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- Featured Products Section -->
+<section class="py-6" style="background-color: white; border-top: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color);">
+    <div class="container">
+        <div class="section-title">
+            <h2>Featured Artistry</h2>
+            <p>New arrivals and spotlight products crafted in small batches</p>
+        </div>
+        <div class="grid-4">
+            {% for product in featured_products %}
+                <div class="product-grid-card">
+                    <div class="product-img-wrapper">
+                        {% if product.image %}
+                            <img src="{{ product.image.url }}" alt="{{ product.product_name }}">
+                        {% else %}
+                            <div style="background-color: #ddd; position: absolute; inset: 0;"></div>
+                        {% endif %}
+                        
+                        <!-- Toggle Wishlist -->
+                        <form action="{% url 'wishlist_toggle' product.id %}" method="post" style="margin: 0;">
+                            {% csrf_token %}
+                            <button type="submit" class="wishlist-btn-overlay" title="Add to Wishlist">
+                                <i class="bi bi-heart"></i>
+                            </button>
+                        </form>
+                    </div>
+                    
+                    <div class="product-info-wrapper">
+                        <span class="product-cat">{{ product.category.category_name }}</span>
+                        <a href="{% url 'product_detail' product.id %}" class="product-title">{{ product.product_name }}</a>
+                        <span class="product-price">₹{{ product.price }}</span>
+                        
+                        <div class="product-actions">
+                            <a href="{% url 'product_detail' product.id %}" class="btn btn-secondary btn-sm" style="flex-grow: 1;">View Details</a>
+                            {% if product.stock > 0 %}
+                                <form action="{% url 'cart_add' product.id %}" method="post" style="display: inline; margin: 0; flex-grow: 1;">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-primary btn-sm" style="width: 100%;">
+                                        <i class="bi bi-cart-plus"></i> Add
+                                    </button>
+                                </form>
+                            {% else %}
+                                <button class="btn btn-dark btn-sm" style="flex-grow: 1; cursor: not-allowed; opacity: 0.6;" disabled>Out of Stock</button>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            {% empty %}
+                <p class="text-center" style="grid-column: span 4;">No products seeded yet.</p>
+            {% endfor %}
+        </div>
+        
+        <div class="text-center mt-4">
+            <a href="{% url 'shop' %}" class="btn btn-dark">View All Handmade Products <i class="bi bi-arrow-right"></i></a>
+        </div>
+    </div>
+</section>
+
+<!-- Testimonials Section -->
+<section class="py-6">
+    <div class="container testimonial-section">
+        <div class="section-title">
+            <h2>Artisan Stories & Feedback</h2>
+            <p>What our community members are saying about CraftNest products</p>
+        </div>
+        <div class="grid-3">
+            {% for review in recent_reviews %}
+                <div class="testimonial-card">
+                    <!-- Rating Stars -->
+                    <div class="stars mb-2" style="color: var(--accent-color);">
+                        {% for i in "12345" %}
+                            {% if forloop.counter <= review.rating %}
+                                <i class="bi bi-star-fill"></i>
+                            {% else %}
+                                <i class="bi bi-star"></i>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                    <p class="testimonial-quote">"{{ review.comment }}"</p>
+                    <div class="testimonial-user">
+                        {% if review.user.profile_image %}
+                            <img src="{{ review.user.profile_image.url }}" alt="{{ review.user.first_name }}">
+                        {% else %}
+                            <div style="width: 45px; height: 45px; border-radius: var(--radius-full); background-color: var(--primary-color); color: white; display: flex; align-items: center; justify-content: center; font-weight: bold;">
+                                {{ review.user.first_name|slice:":1" }}
+                            </div>
+                        {% endif %}
+                        <div>
+                            <h4 style="font-size: 1rem; margin: 0;">{{ review.user.first_name }} {{ review.user.last_name }}</h4>
+                            <p style="font-size: 0.75rem; color: var(--text-muted); margin: 0;">Verified Buyer</p>
+                        </div>
+                    </div>
+                </div>
+            {% empty %}
+                <!-- Static Fallback testimonials if reviews are not populated -->
+                <div class="testimonial-card">
+                    <div class="stars mb-2" style="color: var(--accent-color);">
+                        <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i>
+                    </div>
+                    <p class="testimonial-quote">"The Speckled Clay Coffee Mug is an absolute work of art. The quality is outstanding, and sipping from a handmade mug changes the entire morning."</p>
+                    <div class="testimonial-user">
+                        <div style="width: 45px; height: 45px; border-radius: 50%; background-color: #8c7355; color: white; display: flex; align-items: center; justify-content: center; font-weight: bold;">JD</div>
+                        <div>
+                            <h4 style="font-size: 1rem; margin: 0;">John Doe</h4>
+                            <p style="font-size: 0.75rem; color: var(--text-muted); margin: 0;">Collector</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="testimonial-card">
+                    <div class="stars mb-2" style="color: var(--accent-color);">
+                        <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i>
+                    </div>
+                    <p class="testimonial-quote">"The Indigo Handwoven Table Runner fits perfectly in my dining room. I love knowing that it was made with organic materials by heritage artisans."</p>
+                    <div class="testimonial-user">
+                        <div style="width: 45px; height: 45px; border-radius: 50%; background-color: #d37556; color: white; display: flex; align-items: center; justify-content: center; font-weight: bold;">AS</div>
+                        <div>
+                            <h4 style="font-size: 1rem; margin: 0;">Amara Singh</h4>
+                            <p style="font-size: 0.75rem; color: var(--text-muted); margin: 0;">Interior Stylist</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="testimonial-card">
+                    <div class="stars mb-2" style="color: var(--accent-color);">
+                        <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-half"></i>
+                    </div>
+                    <p class="testimonial-quote">"Highly impressed with the Walnut Serving Board. Finely sanded, beautiful grain structure, and is a centerpiece for all my house gatherings."</p>
+                    <div class="testimonial-user">
+                        <div style="width: 45px; height: 45px; border-radius: 50%; background-color: #2b2c28; color: white; display: flex; align-items: center; justify-content: center; font-weight: bold;">LM</div>
+                        <div>
+                            <h4 style="font-size: 1rem; margin: 0;">Lucas Miller</h4>
+                            <p style="font-size: 0.75rem; color: var(--text-muted); margin: 0;">Home Chef</p>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,278 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}CraftNest - Checkout{% endblock %}
+
+{% block extra_css %}
+<style>
+    .checkout-layout {
+        display: grid;
+        grid-template-columns: 1fr 400px;
+        gap: 2.5rem;
+        margin-top: 2rem;
+    }
+    
+    @media (max-width: 992px) {
+        .checkout-layout {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .checkout-card {
+        background-color: white;
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-md);
+        box-shadow: var(--shadow-sm);
+        padding: 2rem;
+    }
+    
+    .checkout-section-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--text-dark);
+        border-bottom: 1px solid var(--border-color);
+        padding-bottom: 0.5rem;
+    }
+
+    /* Form Fields */
+    .form-group {
+        margin-bottom: 1.25rem;
+    }
+    .form-group label {
+        display: block;
+        font-size: 0.9rem;
+        font-weight: 600;
+        margin-bottom: 0.35rem;
+        color: var(--text-dark);
+    }
+    .form-control {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-md);
+        outline: none;
+        font-size: 0.95rem;
+        transition: var(--transition);
+        background-color: var(--light-bg);
+    }
+    .form-control:focus {
+        border-color: var(--primary-color);
+        background-color: white;
+        box-shadow: 0 0 0 3px var(--primary-light);
+    }
+    .form-select {
+        cursor: pointer;
+    }
+
+    /* Summary items list */
+    .summary-item-mini {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid #f4efebd3;
+    }
+    .summary-item-mini:last-child {
+        border-bottom: none;
+        padding-bottom: 0;
+        margin-bottom: 0;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <h1 style="font-size: 2.25rem; margin-bottom: 0.25rem; font-family: var(--font-heading);">Checkout</h1>
+    <p style="color: var(--text-muted); border-bottom: 1px solid var(--border-color); padding-bottom: 1rem;">Complete your delivery information and continue to secure payment</p>
+    
+    <div class="checkout-layout">
+        
+        <!-- Shipping Details Form -->
+        <div class="checkout-card">
+            <h2 class="checkout-section-title">
+                <i class="bi bi-geo-alt-fill" style="color: var(--primary-color);"></i> Shipping Information
+            </h2>
+            
+            <form id="checkoutForm" method="post" action="{% url 'checkout' %}">
+                {% csrf_token %}
+                
+                <div class="form-group">
+                    <label for="id_phone_no">Phone Number</label>
+                    <input type="text" name="phone_no" id="id_phone_no" class="form-control" placeholder="e.g. +1 555-0199" value="{{ form.phone_no.value|default:'' }}" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="id_address">Street Address</label>
+                    <textarea name="address" id="id_address" class="form-control" rows="3" placeholder="Apartment, suite, unit, building, street..." required>{{ form.address.value|default:'' }}</textarea>
+                </div>
+                
+                <div class="grid-3" style="gap: 1rem;">
+                    <!-- Country Dropdown -->
+                    <div class="form-group">
+                        <label for="id_country">Country</label>
+                        <select name="country" id="id_country" class="form-control form-select" required>
+                            <option value="">Select Country</option>
+                            {% for country in countries %}
+                                <option value="{{ country.id }}" {% if form.country.value|add:"0" == country.id %}selected{% endif %}>{{ country.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- State Dropdown -->
+                    <div class="form-group">
+                        <label for="id_state">State</label>
+                        <select name="state" id="id_state" class="form-control form-select" required>
+                            <option value="">Select State</option>
+                            <!-- AJAX Populated -->
+                        </select>
+                    </div>
+
+                    <!-- City Dropdown -->
+                    <div class="form-group">
+                        <label for="id_city">City</label>
+                        <select name="city" id="id_city" class="form-control form-select" required>
+                            <option value="">Select City</option>
+                            <!-- AJAX Populated -->
+                        </select>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary mt-4" style="width: 100%; padding: 0.9rem;">
+                    Proceed to Secure Payment <i class="bi bi-shield-lock-fill"></i>
+                </button>
+            </form>
+        </div>
+        
+        <!-- Order Overview Summary -->
+        <div class="checkout-card" style="align-self: start; background-color: var(--light-bg); border-style: dashed;">
+            <h2 class="checkout-section-title" style="border-color: var(--border-color);">
+                <i class="bi bi-bag-check-fill" style="color: var(--secondary-color);"></i> Order Items
+            </h2>
+            
+            <div style="max-height: 250px; overflow-y: auto; margin-bottom: 1.5rem; padding-right: 0.5rem;">
+                {% for item in cart_items %}
+                    <div class="summary-item-mini">
+                        <div>
+                            <h4 style="font-size: 0.95rem; font-weight: 600; margin: 0;">{{ item.product.product_name }}</h4>
+                            <span style="font-size: 0.8rem; color: var(--text-muted);">Qty: {{ item.quantity }} &times; ₹{{ item.product.price }}</span>
+                        </div>
+                        <span style="font-weight: 700; font-size: 0.95rem;">₹{% widthratio item.price 1 item.quantity %}</span>
+                    </div>
+                {% endfor %}
+            </div>
+            
+            <div style="border-top: 1px solid var(--border-color); padding-top: 1.25rem; display: flex; flex-direction: column; gap: 0.75rem; font-size: 0.9rem;">
+                <div style="display: flex; justify-content: space-between;">
+                    <span style="color: var(--text-muted);">Subtotal</span>
+                    <span style="font-weight: 600;">₹{{ subtotal|stringformat:".2f" }}</span>
+                </div>
+                <div style="display: flex; justify-content: space-between;">
+                    <span style="color: var(--text-muted);">Shipping Fee</span>
+                    <span style="font-weight: 600;">₹{{ shipping|stringformat:".2f" }}</span>
+                </div>
+                <div style="display: flex; justify-content: space-between;">
+                    <span style="color: var(--text-muted);">Tax (5% VAT)</span>
+                    <span style="font-weight: 600;">₹{{ tax|stringformat:".2f" }}</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; border-top: 1px solid var(--border-color); padding-top: 1rem; margin-top: 0.5rem; font-size: 1.2rem; font-weight: 700;">
+                    <span>Total Cost</span>
+                    <span style="color: var(--primary-color);">₹{{ total|stringformat:".2f" }}</span>
+                </div>
+            </div>
+        </div>
+        
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // AJAX Location Selectors logic
+    document.addEventListener("DOMContentLoaded", function() {
+        const countrySelect = document.getElementById("id_country");
+        const stateSelect = document.getElementById("id_state");
+        const citySelect = document.getElementById("id_city");
+
+        // Keep track of values if form fails validation
+        const initialCountryVal = "{{ form.country.value|default:'' }}";
+        const initialStateVal = "{{ form.state.value|default:'' }}";
+        const initialCityVal = "{{ form.city.value|default:'' }}";
+
+        if (initialCountryVal) {
+            loadStates(initialCountryVal, initialStateVal, initialCityVal);
+        }
+
+        // When Country changes
+        countrySelect.addEventListener("change", function() {
+            const countryId = this.value;
+            if (countryId) {
+                loadStates(countryId);
+            } else {
+                clearSelect(stateSelect, "Select State");
+                clearSelect(citySelect, "Select City");
+            }
+        });
+
+        // When State changes
+        stateSelect.addEventListener("change", function() {
+            const stateId = this.value;
+            if (stateId) {
+                loadCities(stateId);
+            } else {
+                clearSelect(citySelect, "Select City");
+            }
+        });
+
+        function loadStates(countryId, selectedStateId = "", selectedCityId = "") {
+            fetch(`/ajax/load-states/?country=${countryId}`)
+                .then(response => response.json())
+                .then(data => {
+                    clearSelect(stateSelect, "Select State");
+                    clearSelect(citySelect, "Select City");
+                    
+                    data.forEach(state => {
+                        const opt = document.createElement("option");
+                        opt.value = state.id;
+                        opt.textContent = state.name;
+                        if (selectedStateId && state.id.toString() === selectedStateId.toString()) {
+                            opt.selected = true;
+                        }
+                        stateSelect.appendChild(opt);
+                    });
+
+                    // Trigger city load if state was preselected
+                    if (selectedStateId) {
+                        loadCities(selectedStateId, selectedCityId);
+                    }
+                });
+        }
+
+        function loadCities(stateId, selectedCityId = "") {
+            fetch(`/ajax/load-cities/?state=${stateId}`)
+                .then(response => response.json())
+                .then(data => {
+                    clearSelect(citySelect, "Select City");
+                    
+                    data.forEach(city => {
+                        const opt = document.createElement("option");
+                        opt.value = city.id;
+                        opt.textContent = city.name;
+                        if (selectedCityId && city.id.toString() === selectedCityId.toString()) {
+                            opt.selected = true;
+                        }
+                        citySelect.appendChild(opt);
+                    });
+                });
+        }
+
+        function clearSelect(selectElem, placeholderText) {
+            selectElem.innerHTML = `<option value="">${placeholderText}</option>`;
+        }
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,480 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}CraftNest - {{ product.product_name }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .details-layout {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 3rem;
+        margin-top: 2rem;
+    }
+    
+    @media (max-width: 768px) {
+        .details-layout {
+            grid-template-columns: 1fr;
+            gap: 2rem;
+        }
+    }
+
+    /* Product Gallery */
+    .gallery-container {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+    .main-image-wrapper {
+        border-radius: var(--radius-md);
+        border: 1px solid var(--border-color);
+        overflow: hidden;
+        background-color: white;
+        padding-top: 100%;
+        position: relative;
+    }
+    .main-image-wrapper img {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    .thumbnail-row {
+        display: flex;
+        gap: 0.75rem;
+    }
+    .thumbnail {
+        width: 80px;
+        height: 80px;
+        border-radius: var(--radius-sm);
+        border: 1px solid var(--border-color);
+        overflow: hidden;
+        cursor: pointer;
+        transition: var(--transition);
+        position: relative;
+    }
+    .thumbnail img {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    .thumbnail:hover, .thumbnail.active {
+        border-color: var(--primary-color);
+        transform: scale(1.05);
+    }
+
+    /* Product Info details */
+    .meta-tag {
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        color: var(--secondary-color);
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        display: inline-block;
+    }
+    
+    .prod-price {
+        font-size: 2rem;
+        color: var(--primary-color);
+        font-weight: 700;
+        margin: 1rem 0;
+    }
+    
+    .rating-summary {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.95rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .stock-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+        padding: 0.25rem 0.75rem;
+        border-radius: var(--radius-full);
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+    .in-stock { background-color: #e8f5e9; color: #2e7d32; }
+    .out-stock { background-color: #ffebee; color: #c62828; }
+    .low-stock { background-color: #fff3e0; color: #ef6c00; }
+
+    /* Quantity and Action Buttons */
+    .purchase-section {
+        border-top: 1px solid var(--border-color);
+        border-bottom: 1px solid var(--border-color);
+        padding: 1.5rem 0;
+        margin: 2rem 0;
+    }
+    
+    .quantity-selector {
+        display: flex;
+        align-items: center;
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-md);
+        width: 120px;
+        overflow: hidden;
+    }
+    .qty-btn {
+        background: none;
+        border: none;
+        width: 35px;
+        height: 40px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1rem;
+        font-weight: bold;
+    }
+    .qty-btn:hover { background-color: var(--primary-light); }
+    .qty-input {
+        width: 50px;
+        height: 40px;
+        border: none;
+        border-left: 1px solid var(--border-color);
+        border-right: 1px solid var(--border-color);
+        text-align: center;
+        font-size: 0.95rem;
+        font-weight: 600;
+        outline: none;
+    }
+
+    /* Reviews section layouts */
+    .reviews-container {
+        margin-top: 4rem;
+        border-top: 1px solid var(--border-color);
+        padding-top: 3rem;
+    }
+    .reviews-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+    }
+    @media(max-width: 576px) {
+        .reviews-header { flex-direction: column; align-items: flex-start; gap: 1rem; }
+    }
+    .rating-box {
+        background-color: var(--primary-light);
+        border-radius: var(--radius-md);
+        padding: 1.5rem;
+        text-align: center;
+        width: 100%;
+        max-width: 250px;
+        box-shadow: var(--shadow-sm);
+    }
+    
+    .review-item {
+        background-color: white;
+        border-radius: var(--radius-md);
+        border: 1px solid var(--border-color);
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+    }
+    .review-user-meta {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 0.75rem;
+    }
+    .review-user {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+    .review-avatar {
+        width: 36px;
+        height: 36px;
+        border-radius: var(--radius-full);
+        object-fit: cover;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-md);
+        outline: none;
+        font-size: 0.95rem;
+        transition: var(--transition);
+        background-color: var(--light-bg);
+    }
+    .form-control:focus {
+        border-color: var(--primary-color);
+        background-color: white;
+        box-shadow: 0 0 0 3px var(--primary-light);
+    }
+    .form-select {
+        cursor: pointer;
+        background-color: var(--light-bg);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Breadcrumbs / Back Link -->
+    <a href="{% url 'shop' %}" class="btn btn-secondary btn-sm mb-3">
+        <i class="bi bi-arrow-left"></i> Back to Shop
+    </a>
+    
+    <div class="details-layout">
+        
+        <!-- Product Image Gallery -->
+        <div class="gallery-container">
+            <div class="main-image-wrapper">
+                {% if product.image %}
+                    <img id="mainImg" src="{{ product.image.url }}" alt="{{ product.product_name }}">
+                {% else %}
+                    <div style="background-color: #ddd; position: absolute; inset: 0;"></div>
+                {% endif %}
+            </div>
+            
+            <div class="thumbnail-row">
+                <!-- Main Image Thumbnail -->
+                {% if product.image %}
+                    <div class="thumbnail active" onclick="setMainImage('{{ product.image.url }}', this)">
+                        <img src="{{ product.image.url }}" alt="Main Image">
+                    </div>
+                {% endif %}
+                
+                <!-- Additional Gallery Images -->
+                {% for img in gallery_images %}
+                    <div class="thumbnail" onclick="setMainImage('{{ img.image.url }}', this)">
+                        <img src="{{ img.image.url }}" alt="Gallery Image">
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+        
+        <!-- Product Detail Information -->
+        <div>
+            <span class="meta-tag">{{ product.category.category_name }}</span>
+            <h1 style="font-size: 2.5rem; margin-bottom: 0.5rem; font-family: var(--font-heading);">{{ product.product_name }}</h1>
+            
+            <!-- Ratings and Reviews Info -->
+            <div class="rating-summary">
+                <div style="color: var(--accent-color); display: flex; gap: 0.15rem;">
+                    {% for i in "12345" %}
+                        {% if forloop.counter <= avg_rating %}
+                            <i class="bi bi-star-fill"></i>
+                        {% else %}
+                            <i class="bi bi-star"></i>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+                <span style="font-weight: 600; font-size: 0.95rem;">{{ avg_rating|stringformat:".1f" }}</span>
+                <span style="color: var(--text-muted);">({{ reviews.count }} review{{ reviews.count|pluralize }})</span>
+            </div>
+            
+            <div class="prod-price">₹{{ product.price }}</div>
+            
+            <!-- Availability Indicator -->
+            <div class="mb-3">
+                {% if product.stock > 5 %}
+                    <span class="stock-badge in-stock"><i class="bi bi-check-circle"></i> In Stock ({{ product.stock }} left)</span>
+                {% elif product.stock > 0 %}
+                    <span class="stock-badge low-stock"><i class="bi bi-exclamation-triangle"></i> Only {{ product.stock }} left!</span>
+                {% else %}
+                    <span class="stock-badge out-stock"><i class="bi bi-x-circle"></i> Sold Out</span>
+                {% endif %}
+            </div>
+            
+            <!-- Description -->
+            <div class="mb-3">
+                <h3 style="font-size: 1.15rem; margin-bottom: 0.5rem;">The Artisan's Work</h3>
+                <p style="color: var(--text-dark); font-size: 1rem; line-height: 1.7;">{{ product.description }}</p>
+            </div>
+            
+            <!-- Specifications -->
+            <table style="width: 100%; border-collapse: collapse; margin-top: 1.5rem; border-top: 1px solid var(--border-color);">
+                <tr>
+                    <td style="padding: 0.75rem 0; font-weight: 600; color: var(--text-muted); width: 35%;">Primary Material</td>
+                    <td style="padding: 0.75rem 0; color: var(--text-dark);">{{ product.material|default:"N/A" }}</td>
+                </tr>
+                <tr>
+                    <td style="padding: 0.75rem 0; font-weight: 600; color: var(--text-muted);">Artisan Seller</td>
+                    <td style="padding: 0.75rem 0; color: var(--text-dark);">
+                        <i class="bi bi-person-fill" style="color: var(--primary-color);"></i> {{ product.user.first_name }} {{ product.user.last_name }}
+                    </td>
+                </tr>
+                <tr>
+                    <td style="padding: 0.75rem 0; font-weight: 600; color: var(--text-muted);">Creation Date</td>
+                    <td style="padding: 0.75rem 0; color: var(--text-dark);">{{ product.created_at|date:"F Y" }}</td>
+                </tr>
+            </table>
+
+            <!-- Buy & Add to Cart Forms -->
+            <div class="purchase-section">
+                {% if product.stock > 0 %}
+                    <form action="{% url 'cart_add' product.id %}" method="post" style="margin: 0; display: flex; flex-direction: column; gap: 1.25rem;">
+                        {% csrf_token %}
+                        <div style="display: flex; align-items: center; gap: 1rem;">
+                            <label style="font-weight: 600; font-size: 0.95rem; color: var(--text-dark);">Quantity:</label>
+                            <div class="quantity-selector">
+                                <button type="button" class="qty-btn" onclick="adjustQty(-1)">-</button>
+                                <input type="number" id="qtyInput" name="quantity" value="1" min="1" max="{{ product.stock }}" class="qty-input" readonly>
+                                <button type="button" class="qty-btn" onclick="adjustQty(1)">+</button>
+                            </div>
+                        </div>
+                        
+                        <div style="display: flex; gap: 1rem;">
+                            <button type="submit" class="btn btn-primary" style="flex-grow: 2; padding: 0.9rem;">
+                                <i class="bi bi-cart-plus-fill" style="font-size: 1.1rem;"></i> Add to Cart
+                            </button>
+                    </form>
+                {% endif %}
+                
+                <form action="{% url 'wishlist_toggle' product.id %}" method="post" style="margin: 0; {% if product.stock > 0 %}flex-grow: 1;{% else %}width: 100%;{% endif %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn {% if in_wishlist %}btn-dark{% else %}btn-secondary{% endif %}" style="width: 100%; padding: 0.9rem; display: flex; justify-content: center; align-items: center; gap: 0.5rem;">
+                        <i class="bi {% if in_wishlist %}bi-heart-fill{% else %}bi-heart{% endif %}"></i>
+                        {% if in_wishlist %}Wishlisted{% else %}Add to Wishlist{% endif %}
+                    </button>
+                </form>
+                        </div>
+            </div>
+            
+        </div>
+        
+    </div>
+
+    <!-- Reviews Layout -->
+    <div class="reviews-container">
+        <div class="reviews-header">
+            <div>
+                <h2 style="font-size: 1.75rem; margin-bottom: 0.25rem;">Customer Reviews</h2>
+                <p style="color: var(--text-muted);">Honest feedback from the CraftNest community</p>
+            </div>
+        </div>
+        
+        <div style="display: grid; grid-template-columns: 280px 1fr; gap: 3rem; margin-top: 1.5rem;">
+            @media (max-width: 992px) {
+                /* Inline styles responsive */
+            }
+            
+            <!-- Left side: Summary Card & Add Review Form -->
+            <div style="display: flex; flex-direction: column; gap: 2rem;">
+                <div class="rating-box">
+                    <h3 style="font-size: 3rem; margin: 0; font-weight: 700; color: var(--primary-color);">{{ avg_rating|stringformat:".1f" }}</h3>
+                    <div style="color: var(--accent-color); font-size: 1.2rem; margin: 0.25rem 0;" class="mb-2">
+                        {% for i in "12345" %}
+                            {% if forloop.counter <= avg_rating %}
+                                <i class="bi bi-star-fill"></i>
+                            {% else %}
+                                <i class="bi bi-star"></i>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                    <span style="font-size: 0.9rem; color: var(--text-muted);">Based on {{ reviews.count }} review{{ reviews.count|pluralize }}</span>
+                </div>
+                
+                <!-- Review Form -->
+                {% if request.user.is_authenticated %}
+                    <div style="background-color: white; border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 1.5rem; box-shadow: var(--shadow-sm);">
+                        <h4 style="margin-bottom: 1rem; font-size: 1.15rem;">Write a Review</h4>
+                        <form action="{% url 'add_review' product.id %}" method="post">
+                            {% csrf_token %}
+                            <div class="mb-3">
+                                <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.25rem; color: var(--text-muted);">Overall Rating</label>
+                                {{ review_form.rating }}
+                            </div>
+                            <div class="mb-3">
+                                <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.25rem; color: var(--text-muted);">Comment</label>
+                                {{ review_form.comment }}
+                            </div>
+                            <button type="submit" class="btn btn-dark btn-sm" style="width: 100%;">Submit Review</button>
+                        </form>
+                    </div>
+                {% else %}
+                    <div style="background-color: white; border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 1.5rem; text-align: center;">
+                        <i class="bi bi-chat-left-text" style="font-size: 2rem; color: var(--text-muted); display: block; margin-bottom: 0.5rem;"></i>
+                        <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1rem;">Please log in to share your review on this handmade product.</p>
+                        <a href="{% url 'login' %}?next={{ request.path }}" class="btn btn-secondary btn-sm" style="width: 100%;">Log In to Review</a>
+                    </div>
+                {% endif %}
+            </div>
+            
+            <!-- Right side: Reviews List -->
+            <div>
+                {% for review in reviews %}
+                    <div class="review-item">
+                        <div class="review-user-meta">
+                            <div class="review-user">
+                                {% if review.user.profile_image %}
+                                    <img src="{{ review.user.profile_image.url }}" alt="{{ review.user.first_name }}" class="review-avatar">
+                                {% else %}
+                                    <div style="width: 36px; height: 36px; border-radius: 50%; background-color: var(--primary-color); color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.85rem;">
+                                        {{ review.user.first_name|slice:":1" }}{{ review.user.last_name|slice:":1" }}
+                                    </div>
+                                {% endif %}
+                                <div>
+                                    <h4 style="font-size: 0.95rem; margin: 0;">{{ review.user.first_name }} {{ review.user.last_name }}</h4>
+                                    <div style="color: var(--accent-color); font-size: 0.8rem;">
+                                        {% for i in "12345" %}
+                                            {% if forloop.counter <= review.rating %}
+                                                <i class="bi bi-star-fill"></i>
+                                            {% else %}
+                                                <i class="bi bi-star"></i>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                            <span style="font-size: 0.8rem; color: var(--text-muted);">{{ review.review_date|date:"M d, Y" }}</span>
+                        </div>
+                        <p style="color: var(--text-dark); font-size: 0.95rem; line-height: 1.6; margin: 0;">"{{ review.comment }}"</p>
+                    </div>
+                {% empty %}
+                    <div style="text-align: center; padding: 3rem 0; background-color: white; border: 1px solid var(--border-color); border-radius: var(--radius-md);">
+                        <i class="bi bi-chat-dots" style="font-size: 2.5rem; color: var(--text-muted); display: block; margin-bottom: 0.5rem;"></i>
+                        <p style="color: var(--text-muted); margin: 0;">No reviews yet. Be the first to share your thoughts!</p>
+                    </div>
+                {% endfor %}
+            </div>
+            
+        </div>
+    </div>
+    
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Adjust quantity selector logic
+    function adjustQty(amount) {
+        var input = document.getElementById("qtyInput");
+        if (!input) return;
+        var current = parseInt(input.value);
+        var min = parseInt(input.getAttribute("min"));
+        var max = parseInt(input.getAttribute("max"));
+        
+        var next = current + amount;
+        if (next >= min && next <= max) {
+            input.value = next;
+        }
+    }
+
+    // Change Main Image based on thumbnail click
+    function setMainImage(imgUrl, thumbElement) {
+        var mainImg = document.getElementById("mainImg");
+        if (mainImg) {
+            mainImg.src = imgUrl;
+        }
+        
+        // Remove active class from all thumbnails
+        var thumbnails = document.querySelectorAll(".thumbnail");
+        thumbnails.forEach(function(thumb) {
+            thumb.classList.remove("active");
+        });
+        
+        // Add active class to clicked thumbnail
+        thumbElement.classList.add("active");
+    }
+</script>
+{% endblock %}

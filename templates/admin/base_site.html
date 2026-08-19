@@ -1,0 +1,27 @@
+{% extends "admin/base.html" %}
+{% load static %}
+
+{% block title %}{% if subtitle %}{{ subtitle }} | {% endif %}{{ title }} | CraftNest Admin{% endblock %}
+
+{% block branding %}
+<div id="site-name">
+    <a href="{% url 'admin:index' %}" style="display: flex; align-items: center; gap: 12px; font-family: 'Playfair Display', Georgia, serif; font-size: 1.35rem; font-weight: 700; color: #ffffff; text-decoration: none;">
+        <span style="display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; background: #ffffff; color: #d37556; border-radius: 10px; font-size: 1.1rem; box-shadow: 0 2px 8px rgba(0,0,0,0.18);">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                <polyline points="9 22 9 12 15 12 15 22"></polyline>
+            </svg>
+        </span>
+        <span>Craft<span style="color: #fbeee8;">Nest</span></span>
+        <span style="font-size: 0.75rem; font-weight: 600; background: rgba(255,255,255,0.2); color: #ffffff; padding: 4px 10px; border-radius: 20px; text-transform: uppercase; letter-spacing: 1px; font-family: 'Inter', sans-serif; margin-left: 4px;">Admin Portal</span>
+    </a>
+</div>
+{% endblock %}
+
+{% block extrahead %}
+{{ block.super }}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{% static 'admin/custom.css' %}">
+{% endblock %}
