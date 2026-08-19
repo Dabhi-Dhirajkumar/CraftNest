@@ -1,0 +1,75 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --color-bg: 248 249 250;
+    --color-card: 255 255 255;
+    /* In dark mode, white is white. In light mode, white becomes black */
+    --color-white: 10 10 15;
+    /* In dark mode, black is black. In light mode, black becomes white */
+    --color-black: 255 255 255;
+    --color-primary: 99 102 241;
+    --color-secondary: 56 189 248;
+    --color-accent: 217 70 239;
+    --color-text-main: 15 23 42;
+    --color-text-muted: 71 85 105;
+  }
+
+  .dark {
+    --color-bg: 10 10 15;
+    --color-card: 21 21 32;
+    --color-white: 255 255 255;
+    --color-black: 0 0 0;
+    --color-primary: 139 92 246;
+    --color-secondary: 56 189 248;
+    --color-accent: 232 121 249;
+    --color-text-main: 248 250 252;
+    --color-text-muted: 148 163 184;
+  }
+
+  body {
+    @apply bg-background text-textMain antialiased min-h-screen overflow-x-hidden transition-colors duration-500;
+  }
+}
+
+@layer components {
+  .glass-card {
+    background-color: rgb(var(--color-white) / 0.05);
+    border: 1px solid rgb(var(--color-white) / 0.1);
+    @apply backdrop-blur-md rounded-2xl shadow-glass transition-colors duration-500;
+  }
+
+  .neon-text {
+    @apply text-accent drop-shadow-[0_0_10px_rgba(232,121,249,0.8)];
+  }
+
+  .btn-primary {
+    @apply bg-gradient-to-r from-primary to-accent text-[#ffffff] border-0 px-6 py-2 rounded-lg font-medium shadow-neon transition duration-300 hover:opacity-90 active:scale-95;
+  }
+
+  .btn-secondary {
+    background-color: rgb(var(--color-white) / 0.1);
+    border: 1px solid rgb(var(--color-white) / 0.2);
+    @apply text-textMain px-6 py-2 rounded-lg font-medium backdrop-blur-sm transition duration-300 hover:opacity-90 active:scale-95;
+  }
+  .btn-secondary:hover {
+    background-color: rgb(var(--color-white) / 0.15);
+  }
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  @apply bg-background;
+}
+::-webkit-scrollbar-thumb {
+  @apply bg-primary rounded-md;
+}
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-accent;
+}
