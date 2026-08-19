@@ -82,6 +82,20 @@
         padding-bottom: 0;
         margin-bottom: 0;
     }
+
+    /* ===== Responsive Breakpoints ===== */
+    @media (max-width: 992px) {
+        .checkout-layout {
+            grid-template-columns: 1fr;
+            gap: 2rem;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .checkout-card { padding: 1.25rem; }
+        .checkout-section-title { font-size: 1.15rem; }
+        .form-group { margin-bottom: 1rem; }
+    }
 </style>
 {% endblock %}
 
