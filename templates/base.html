@@ -30,16 +30,16 @@
             </ul>
 
             <div class="nav-actions">
-                <!-- Search Icon redirecting to shop page search -->
-                <form action="{% url 'shop' %}" method="get" style="display: flex; align-items: center; background-color: var(--primary-light); border-radius: var(--radius-full); padding: 0.25rem 0.75rem; border: 1px solid var(--border-color);">
-                    <input type="text" name="q" placeholder="Search crafts..." value="{{ q }}" style="border: none; background: transparent; outline: none; font-size: 0.85rem; width: 140px; padding: 0.25rem 0;">
-                    <button type="submit" style="background: none; border: none; cursor: pointer; color: var(--text-dark); display: flex; align-items: center;">
+                <!-- Search Bar (Desktop only — hidden on mobile via CSS) -->
+                <form action="{% url 'shop' %}" method="get" class="nav-search-desktop">
+                    <input type="text" name="q" placeholder="Search crafts..." value="{{ q }}">
+                    <button type="submit">
                         <i class="bi bi-search"></i>
                     </button>
                 </form>
 
                 <!-- Wishlist Badge -->
-                <a href="{% url 'wishlist' %}" class="nav-action-btn" title="Wishlist" style="z-index: 100; position: relative;">
+                <a href="{% url 'wishlist' %}" class="nav-action-btn" title="Wishlist">
                     <i class="bi bi-heart"></i>
                     {% if wishlist_count > 0 %}
                         <span class="badge">{{ wishlist_count }}</span>
@@ -47,7 +47,7 @@
                 </a>
 
                 <!-- Cart Badge -->
-                <a href="{% url 'cart' %}" class="nav-action-btn" title="Shopping Cart" style="z-index: 100; position: relative;">
+                <a href="{% url 'cart' %}" class="nav-action-btn" title="Shopping Cart">
                     <i class="bi bi-cart3"></i>
                     {% if cart_count > 0 %}
                         <span class="badge">{{ cart_count }}</span>
@@ -56,16 +56,16 @@
 
                 {% if request.user.is_seller %}
                     <!-- Seller Dashboard Icon (Shop Icon) -->
-                    <a href="{% url 'seller_dashboard' %}" class="nav-action-btn" title="Seller Dashboard" style="z-index: 100; position: relative;">
+                    <a href="{% url 'seller_dashboard' %}" class="nav-action-btn" title="Seller Dashboard">
                         <i class="bi bi-shop"></i>
                     </a>
                     <!-- Seller Add Product Icon -->
-                    <a href="{% url 'seller_product_add' %}" class="nav-action-btn" title="Add Product" style="z-index: 100; position: relative;">
+                    <a href="{% url 'seller_product_add' %}" class="nav-action-btn" title="Add Product">
                         <i class="bi bi-plus-circle"></i>
                     </a>
                 {% endif %}
 
-                <!-- User Account Actions -->
+                <!-- User Account Actions (Desktop dropdown) -->
                 {% if request.user.is_authenticated %}
                     <div class="user-menu" id="userMenuBtn" onclick="toggleUserDropdown()">
                         {% if request.user.profile_image %}
@@ -75,55 +75,128 @@
                                 {{ request.user.first_name|slice:":1" }}{{ request.user.last_name|slice:":1" }}
                             </div>
                         {% endif %}
-                        <span style="font-size: 0.9rem; font-weight: 500; display: flex; align-items: center; gap: 0.25rem;">
+                        <span class="user-menu-name">
                             Hi, {{ request.user.first_name }}
                             <i class="bi bi-chevron-down" style="font-size: 0.75rem;"></i>
                         </span>
                         
                         <!-- Dropdown Menu -->
-                        <div class="dropdown-content" id="userDropdown" style="display: none; position: absolute; top: 100%; right: 0; background-color: white; border: 1px solid var(--border-color); border-radius: var(--radius-md); box-shadow: var(--shadow-md); padding: 0.5rem 0; width: 180px; z-index: 1001; margin-top: 5px;">
-                            <a href="{% url 'profile' %}" style="display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1rem; font-size: 0.9rem; color: var(--text-dark); transition: var(--transition);">
+                        <div class="dropdown-content" id="userDropdown" style="display: none;">
+                            <a href="{% url 'profile' %}">
                                 <i class="bi bi-person"></i> My Profile
                             </a>
-                            <a href="{% url 'cart' %}" style="display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1rem; font-size: 0.9rem; color: var(--text-dark); transition: var(--transition);">
+                            <a href="{% url 'cart' %}">
                                 <i class="bi bi-cart3"></i> My Cart
                                 {% if cart_count > 0 %}
                                     <span style="background: var(--primary-color); color: white; border-radius: 999px; font-size: 0.7rem; padding: 0.1rem 0.4rem; margin-left: auto;">{{ cart_count }}</span>
                                 {% endif %}
                             </a>
-                            <a href="{% url 'wishlist' %}" style="display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1rem; font-size: 0.9rem; color: var(--text-dark); transition: var(--transition);">
+                            <a href="{% url 'wishlist' %}">
                                 <i class="bi bi-heart"></i> Wishlist
                             </a>
-                            <a href="{% url 'profile' %}#orders" style="display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1rem; font-size: 0.9rem; color: var(--text-dark); transition: var(--transition);">
+                            <a href="{% url 'profile' %}#orders">
                                 <i class="bi bi-box-seam"></i> Order History
                             </a>
                             {% if request.user.is_seller %}
-                                <a href="{% url 'seller_dashboard' %}" style="display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1rem; font-size: 0.9rem; color: var(--text-dark); transition: var(--transition); border-top: 1px solid var(--border-color);">
+                                <a href="{% url 'seller_dashboard' %}" style="border-top: 1px solid var(--border-color);">
                                     <i class="bi bi-shop"></i> Seller Dashboard
                                 </a>
-                                <a href="{% url 'seller_product_add' %}" style="display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1rem; font-size: 0.9rem; color: var(--text-dark); transition: var(--transition);">
+                                <a href="{% url 'seller_product_add' %}">
                                     <i class="bi bi-plus-circle"></i> Add Product
                                 </a>
                             {% endif %}
                             {% if request.user.is_staff %}
-                                <a href="{% url 'admin:index' %}" target="_blank" style="display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1rem; font-size: 0.9rem; color: var(--text-dark); transition: var(--transition); border-top: 1px solid var(--border-color);">
+                                <a href="{% url 'admin:index' %}" target="_blank" style="border-top: 1px solid var(--border-color);">
                                     <i class="bi bi-shield-lock"></i> Admin Panel
                                 </a>
                             {% endif %}
-                            <a href="{% url 'logout' %}" style="display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1rem; font-size: 0.9rem; color: #c62828; transition: var(--transition); border-top: 1px solid var(--border-color);">
+                            <a href="{% url 'logout' %}" style="color: #c62828; border-top: 1px solid var(--border-color);">
                                 <i class="bi bi-box-arrow-right"></i> Logout
                             </a>
                         </div>
                     </div>
                 {% else %}
-                    <div style="display: flex; align-items: center; gap: 0.75rem;">
+                    <div class="nav-auth-btns" style="display: flex; align-items: center; gap: 0.75rem;">
                         <a href="{% url 'login' %}" class="btn btn-secondary btn-sm" style="padding: 0.4rem 1rem;">Log In</a>
                         <a href="{% url 'register' %}" class="btn btn-primary btn-sm" style="padding: 0.4rem 1rem;">Sign Up</a>
                     </div>
                 {% endif %}
+
+                <!-- Hamburger Button (Mobile only — shown via CSS) -->
+                <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Open navigation menu">
+                    <i class="bi bi-list"></i>
+                </button>
             </div>
         </div>
     </nav>
+
+    <!-- Mobile Overlay -->
+    <div class="mobile-overlay" id="mobileOverlay"></div>
+
+    <!-- Mobile Drawer -->
+    <div class="mobile-drawer" id="mobileDrawer">
+        <div class="drawer-header">
+            <a href="{% url 'home' %}" class="nav-brand">
+                <i class="bi bi-nest-fill" style="color: var(--primary-color);"></i> Craft<span>Nest</span>
+            </a>
+            <button class="drawer-close-btn" id="drawerCloseBtn" aria-label="Close navigation menu">
+                <i class="bi bi-x-lg"></i>
+            </button>
+        </div>
+
+        <!-- Drawer Search -->
+        <div class="drawer-search">
+            <form action="{% url 'shop' %}" method="get">
+                <input type="text" name="q" placeholder="Search crafts..." value="{{ q }}">
+                <button type="submit"><i class="bi bi-search"></i></button>
+            </form>
+        </div>
+
+        <!-- Drawer Navigation Links -->
+        <ul class="drawer-nav">
+            <li><a href="{% url 'home' %}" class="{% if request.resolver_match.url_name == 'home' %}active{% endif %}"><i class="bi bi-house"></i> Home</a></li>
+            <li><a href="{% url 'shop' %}" class="{% if request.resolver_match.url_name == 'shop' %}active{% endif %}"><i class="bi bi-grid-3x3-gap"></i> Shop</a></li>
+            <li><a href="{% url 'contact' %}" class="{% if request.resolver_match.url_name == 'contact' %}active{% endif %}"><i class="bi bi-envelope"></i> Contact Us</a></li>
+            <li><a href="{% url 'wishlist' %}"><i class="bi bi-heart"></i> Wishlist {% if wishlist_count > 0 %}<span class="drawer-badge" style="background: var(--primary-color); color: white; border-radius: 999px; font-size: 0.7rem; padding: 0.1rem 0.5rem; margin-left: auto;">{{ wishlist_count }}</span>{% endif %}</a></li>
+            <li><a href="{% url 'cart' %}"><i class="bi bi-cart3"></i> Cart {% if cart_count > 0 %}<span class="drawer-badge" style="background: var(--primary-color); color: white; border-radius: 999px; font-size: 0.7rem; padding: 0.1rem 0.5rem; margin-left: auto;">{{ cart_count }}</span>{% endif %}</a></li>
+        </ul>
+
+        <!-- Drawer User Section -->
+        {% if request.user.is_authenticated %}
+            <div class="drawer-user-section">
+                <div class="drawer-user-info">
+                    {% if request.user.profile_image %}
+                        <img src="{{ request.user.profile_image.url }}" alt="{{ request.user.first_name }}" class="avatar">
+                    {% else %}
+                        <div class="avatar" style="background-color: var(--primary-color); color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.85rem; width: 42px; height: 42px;">
+                            {{ request.user.first_name|slice:":1" }}{{ request.user.last_name|slice:":1" }}
+                        </div>
+                    {% endif %}
+                    <div>
+                        <div class="user-name">{{ request.user.first_name }} {{ request.user.last_name }}</div>
+                        <div class="user-email">{{ request.user.email }}</div>
+                    </div>
+                </div>
+                <ul class="drawer-user-links">
+                    <li><a href="{% url 'profile' %}"><i class="bi bi-person"></i> My Profile</a></li>
+                    <li><a href="{% url 'profile' %}#orders"><i class="bi bi-box-seam"></i> Order History</a></li>
+                    {% if request.user.is_seller %}
+                        <li><a href="{% url 'seller_dashboard' %}"><i class="bi bi-shop"></i> Seller Dashboard</a></li>
+                        <li><a href="{% url 'seller_product_add' %}"><i class="bi bi-plus-circle"></i> Add Product</a></li>
+                    {% endif %}
+                    {% if request.user.is_staff %}
+                        <li><a href="{% url 'admin:index' %}" target="_blank"><i class="bi bi-shield-lock"></i> Admin Panel</a></li>
+                    {% endif %}
+                    <li class="drawer-logout"><a href="{% url 'logout' %}"><i class="bi bi-box-arrow-right"></i> Logout</a></li>
+                </ul>
+            </div>
+        {% else %}
+            <div class="drawer-auth">
+                <a href="{% url 'login' %}" class="btn btn-secondary">Log In</a>
+                <a href="{% url 'register' %}" class="btn btn-primary">Sign Up</a>
+            </div>
+        {% endif %}
+    </div>
 
     <!-- Message Alerts Notifications -->
     {% if messages %}
@@ -150,7 +223,7 @@
             <div class="footer-about">
                 <h3>CraftNest</h3>
                 <p>CraftNest is a community-driven marketplace for unique, high-quality handmade products. Connect directly with artisan sellers, browse one-of-a-kind home decors, apparel, accessories, and support local small-scale creators.</p>
-                <div style="display: flex; gap: 1rem; font-size: 1.25rem;">
+                <div style="display: flex; gap: 0.5rem; font-size: 1.25rem;">
                     <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" class="footer-social-link" title="Facebook"><i class="bi bi-facebook"></i></a>
                     <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" class="footer-social-link" title="Instagram"><i class="bi bi-instagram"></i></a>
                     <a href="https://pinterest.com" target="_blank" rel="noopener noreferrer" class="footer-social-link" title="Pinterest"><i class="bi bi-pinterest"></i></a>
@@ -181,14 +254,14 @@
             <div class="footer-links">
                 <h4>Contact Details</h4>
                 <p style="font-size: 0.9rem; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
-                    <i class="bi bi-geo-alt" style="color: var(--primary-color);"></i> 101 Artisan Boulevard, CA, US
+                    <i class="bi bi-geo-alt" style="color: var(--primary-color); flex-shrink: 0;"></i> 101 Artisan Boulevard, CA, US
                 </p>
                 <p style="font-size: 0.9rem; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
-                    <i class="bi bi-envelope" style="color: var(--primary-color);"></i> 
+                    <i class="bi bi-envelope" style="color: var(--primary-color); flex-shrink: 0;"></i> 
                     <a href="mailto:hello@craftnest.com" class="footer-contact-link">hello@craftnest.com</a>
                 </p>
                 <p style="font-size: 0.9rem; display: flex; align-items: center; gap: 0.5rem;">
-                    <i class="bi bi-telephone" style="color: var(--primary-color);"></i> 
+                    <i class="bi bi-telephone" style="color: var(--primary-color); flex-shrink: 0;"></i> 
                     <a href="tel:+15550199" class="footer-contact-link">+1 555-0199</a>
                 </p>
             </div>
@@ -231,6 +304,44 @@
                 setTimeout(function() { alert.remove(); }, 500);
             });
         }, 5000);
+
+        // ===== Mobile Drawer =====
+        (function() {
+            var menuBtn = document.getElementById('mobileMenuBtn');
+            var closeBtn = document.getElementById('drawerCloseBtn');
+            var overlay = document.getElementById('mobileOverlay');
+            var drawer = document.getElementById('mobileDrawer');
+
+            function openDrawer() {
+                drawer.classList.add('active');
+                overlay.classList.add('active');
+                document.body.classList.add('drawer-open');
+            }
+
+            function closeDrawer() {
+                drawer.classList.remove('active');
+                overlay.classList.remove('active');
+                document.body.classList.remove('drawer-open');
+            }
+
+            if (menuBtn) menuBtn.addEventListener('click', openDrawer);
+            if (closeBtn) closeBtn.addEventListener('click', closeDrawer);
+            if (overlay) overlay.addEventListener('click', closeDrawer);
+
+            // Close on Escape key
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') closeDrawer();
+            });
+
+            // Close drawer links on click (for SPA-like feel)
+            var drawerLinks = drawer ? drawer.querySelectorAll('a') : [];
+            drawerLinks.forEach(function(link) {
+                link.addEventListener('click', function() {
+                    // small delay to allow navigation
+                    setTimeout(closeDrawer, 150);
+                });
+            });
+        })();
     </script>
     {% block extra_js %}{% endblock %}
 </body>

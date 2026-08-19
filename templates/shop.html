@@ -226,6 +226,38 @@
         background-color: var(--primary-light);
         color: var(--primary-color);
     }
+    /* ===== Responsive Breakpoints ===== */
+    @media (max-width: 992px) {
+        .filter-sidebar {
+            display: none;
+        }
+        .filter-sidebar.show {
+            display: block;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .catalog-header {
+            flex-direction: column;
+            gap: 0.75rem;
+            align-items: stretch;
+        }
+        .catalog-header > div:last-child {
+            justify-content: flex-start;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .product-info-wrapper { padding: 1rem; }
+        .product-title { font-size: 1rem; }
+        .product-price { font-size: 1.1rem; }
+        .product-actions { flex-direction: column; }
+        .product-actions .btn { width: 100%; }
+        .product-actions form { width: 100%; }
+        .product-actions form .btn { width: 100%; }
+        .pagination { flex-wrap: wrap; }
+        .pagination-link { width: 36px; height: 36px; font-size: 0.85rem; }
+    }
 </style>
 {% endblock %}
 
@@ -234,15 +266,20 @@
     
     <!-- Page Header -->
     <div style="border-bottom: 1px solid var(--border-color); padding-bottom: 1rem;">
-        <h1 style="font-size: 2.25rem; margin-bottom: 0.25rem;">Handmade Collection</h1>
+        <h1 style="font-size: clamp(1.5rem, 4vw, 2.25rem); margin-bottom: 0.25rem;">Handmade Collection</h1>
         <p style="color: var(--text-muted);">Explore unique products crafted by hand with organic materials</p>
     </div>
     
     <!-- Main Catalog Grid Layout -->
     <div class="shop-layout">
         
+        <!-- Mobile Filter Toggle Button -->
+        <button class="mobile-filter-toggle" id="mobileFilterToggle" onclick="document.getElementById('filterSidebar').classList.toggle('show'); this.querySelector('i').classList.toggle('bi-funnel'); this.querySelector('i').classList.toggle('bi-x-lg');">
+            <i class="bi bi-funnel"></i> Filter & Sort Options
+        </button>
+
         <!-- Filter Sidebar -->
-        <aside class="filter-sidebar">
+        <aside class="filter-sidebar" id="filterSidebar">
             <form action="{% url 'shop' %}" method="get" id="filterForm">
                 <!-- Retain Search Query if present -->
                 {% if q %}
@@ -375,7 +412,7 @@
                         </div>
                     </div>
                 {% empty %}
-                    <div style="grid-column: span 3; padding: 4rem 0; text-align: center; background-color: white; border: 1px solid var(--border-color); border-radius: var(--radius-md);">
+                    <div style="grid-column: 1 / -1; padding: 4rem 0; text-align: center; background-color: white; border: 1px solid var(--border-color); border-radius: var(--radius-md);">
                         <i class="bi bi-search" style="font-size: 3rem; color: var(--text-muted); display: block; margin-bottom: 1rem;"></i>
                         <h3>No Products Found</h3>
                         <p style="color: var(--text-muted);">Try adjusting your filter settings or search query.</p>

@@ -248,9 +248,51 @@
         to { opacity: 1; transform: translateY(0); }
     }
 
+    /* ===== Responsive Breakpoints ===== */
+    @media (max-width: 992px) {
+        .hero h1 { font-size: 3rem; }
+        .hero p { font-size: 1.1rem; }
+        .hero { padding: 6rem 0; }
+        .section-title h2 { font-size: 2rem; }
+    }
+
     @media (max-width: 768px) {
-        .hero h1 { font-size: 2.75rem; }
-        .hero { padding: 5rem 0; }
+        .hero h1 { font-size: 2.5rem; }
+        .hero p { font-size: 1rem; margin-bottom: 2rem; }
+        .hero { padding: 4.5rem 0; border-bottom-left-radius: var(--radius-md); border-bottom-right-radius: var(--radius-md); }
+        .hero-btns { flex-direction: column; align-items: center; gap: 0.75rem; }
+        .hero-btns .btn { width: 100%; max-width: 300px; }
+        .section-title { margin-bottom: 2.5rem; }
+        .section-title h2 { font-size: 1.75rem; }
+        .section-title p { font-size: 0.95rem; }
+        .category-card { height: 200px; padding: 1.5rem; }
+        .category-content h3 { font-size: 1.25rem; }
+        .testimonial-section { padding: 3rem 1.25rem; border-radius: var(--radius-md); }
+    }
+
+    @media (max-width: 576px) {
+        .hero h1 { font-size: 2rem; line-height: 1.2; }
+        .hero p { font-size: 0.9rem; }
+        .hero { padding: 3.5rem 0; }
+        .hero-btns .btn { max-width: 100%; }
+        .section-title h2 { font-size: 1.5rem; }
+        .category-card { height: 180px; padding: 1.25rem; }
+        .category-content h3 { font-size: 1.1rem; }
+        .product-info-wrapper { padding: 1rem; }
+        .product-title { font-size: 1rem; }
+        .product-price { font-size: 1.1rem; }
+        .product-actions { flex-direction: column; }
+        .product-actions .btn { width: 100%; }
+        .product-actions form { width: 100%; }
+        .product-actions form .btn { width: 100%; }
+        .testimonial-section { padding: 2.5rem 1rem; }
+        .testimonial-card { padding: 1.5rem; }
+    }
+
+    @media (max-width: 400px) {
+        .hero h1 { font-size: 1.75rem; }
+        .hero { padding: 3rem 0; }
+        .category-card { height: 160px; }
     }
 </style>
 {% endblock %}
